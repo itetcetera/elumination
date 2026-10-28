@@ -150,7 +150,7 @@ Sprinter's +1 food is now half of what it was).
 
 The game keeps its shape, about 2% smaller. Players starve a little more often (4.2 turns a game
 against 2.9) because "below 30% of the food need" now catches 1 food of 6, which used to round to
-nothing.
+nothing. The care package fires below `careBelowFood` (1 today, 2 at x2), so a player at 1 of 6 still gets it.
 
 First finer species try under x2 (2,000 games each): the Sprinter at +2 food (the same cost as
 today) wins 21% at 12 rounds and 28% at 24; at +1 food it wins 23% and 28%. Half the food cost

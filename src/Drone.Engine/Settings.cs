@@ -380,6 +380,8 @@ public sealed class PersonalEventSettings
     public required int RoundsPerStep { get; init; }
     public required int CareFood { get; init; }
     public required int CareEnergy { get; init; }
+    /// <summary>A non-leader holding less food than this gets the care package (F13: 1, i.e. none left).</summary>
+    public required int CareBelowFood { get; init; }
     public required int OreGift { get; init; }
     public required PersonalEvent[] Events { get; init; }
 }

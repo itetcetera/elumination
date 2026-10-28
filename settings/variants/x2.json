@@ -26,7 +26,7 @@
     "plain": [4, 6, 2], "mountain": [2, 2, 0], "mountainOreBase": 2, "orePerUnit": 2, "water": [8, 4, 0],
     "bankFoodBonus": 2, "scaleBonus": 2, "learningBonus": 2, "luckSpread": 2.0, "maxOutput": 20, "energyPerDrone": 2.0
   },
-  "personalEvents": { "unit": 50, "careFood": 6, "careEnergy": 4, "oreGift": 4 },
+  "personalEvents": { "unit": 50, "careFood": 6, "careEnergy": 4, "careBelowFood": 2, "oreGift": 4 },
   "roundEvents": {
     "acidFoodIn": 8, "acidEnergyIn": -4, "acidFoodOut": 2, "acidEnergyOut": -2,
     "sunspotEnergy": 6, "meteorLevel": 8, "meteorMaxBefore": 4, "supplyShipFood": 16, "supplyShipEnergy": 16

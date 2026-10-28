@@ -127,6 +127,7 @@
     "roundsPerStep": 4,
     "careFood": 3,
     "careEnergy": 2,
+    "careBelowFood": 1,
     "oreGift": 2,
     "events": [
       { "id": "care",      "kind": "carePackage",       "q": 0,  "needsDrone": false, "text": "A package from your home-world relatives: 3 food and 2 energy." },

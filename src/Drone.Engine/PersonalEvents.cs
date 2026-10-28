@@ -3,7 +3,7 @@ namespace Drone.Engine;
 /// <summary>
 /// Personal events at the start of a development turn (F12-F14): a chance each turn, each event at
 /// most once per game, good events never to the leader, bad events never to the last two. A
-/// non-leader with no food always gets the care package instead. A penalty that can't be paid is
+/// non-leader with (next to) no food always gets the care package instead. A penalty that can't be paid is
 /// skipped and stays in the pool. Species divisors shrink money and goods events (the
 /// Survivor: bad ones cost half, good ones pay half); the care package and land events are whole.
 /// </summary>
@@ -21,8 +21,8 @@ public static class PersonalEvents
         if (good && p.Rank == 0) return null;
         if (!good && p.Rank >= n - 2) return null;
         if (ev.NeedsDrone && !game.PlotsOf(p).Any(x => x.Drone != null)) return null;
-        // F13: a non-leader with no food gets the care package whatever was drawn.
-        if (p.Rank != 0 && p.Held[(int)Good.Food] == 0)
+        // F13: a non-leader with (next to) no food gets the care package whatever was drawn.
+        if (p.Rank != 0 && p.Held[(int)Good.Food] < s.CareBelowFood)
         {
             var care = s.Events.FirstOrDefault(e => e.Kind == PersonalEventKind.CarePackage);
             if (care != null) { ev = care; good = true; }
