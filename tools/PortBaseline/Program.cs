@@ -106,6 +106,10 @@ static GameStats PlayOne(int seed)
         RoundsStoreOutOfDrones = 0,
         StarvingTurns = 0,
         ShortageStops = 0,
+        AuctionPlots = 0,
+        AuctionPlotsIdle = 0,
+        GlimmerHunts = 0,
+        GlimmerCatches = 0,
         RoundEvents = new(),
     };
 }
