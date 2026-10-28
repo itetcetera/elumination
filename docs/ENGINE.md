@@ -129,17 +129,19 @@ From 1,000 games at each length:
   knobs.
 - Catch-up holds at 12 and 18 rounds (the half-time leader wins 42-49%) but weakens at 24 (61%).
 
-## The x2 scale (variant `x2`)
+## The x2 scale (the default since 2026-10-28)
 
-`settings/variants/x2.json` doubles every amount of goods and money: production, needs, stocks,
+`settings/drone.json` now doubles every amount of goods and money from the original scale (Marcus,
+2026-10-28; `settings/variants/x1.json` and `original.json` keep the original scale): production, needs, stocks,
 event amounts, cash, land and drone prices, scores. Unit prices stay the same (twice the money for
-twice the goods). Auctions still trade one unit at a time, twice as fast, so they last about as
-long. The point is room for finer species costs and benefits in whole amounts (for example the
+twice the goods). Auctions still trade one unit at a time, twice as fast, and speed up over twice
+as many units, so they last about as long. Auction movement is unchanged: a buyer backing away from
+a seller who follows it down gets a few more units than before (about 5 in original units against 3). The point is room for finer species costs and benefits in whole amounts (for example the
 Sprinter's +1 food is now half of what it was).
 
 1,000 games each, same seeds, 2026-10-28:
 
-| | Default | x2 | x2 / 2 |
+| | x1 | x2 | x2 / 2 |
 | --- | ---: | ---: | ---: |
 | Colony, 12 rounds | 89,677 | 175,509 | 87,755 |
 | Lead changes, 12 rounds | 3.95 | 3.95 | |

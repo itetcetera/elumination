@@ -73,7 +73,7 @@ public class MapTests
         for (ulong seed = 0; seed < 300; seed++)
         {
             var map = MapGen.Generate(s, MapGen.SizeFor(s, 24), new Rng(seed));
-            Assert.DoesNotContain(map.Plots, p => p.Crystite >= 2 && p.Helion >= 2);
+            Assert.DoesNotContain(map.Plots, p => p.Crystite >= s.Map.SeedLevel - s.Map.SeedDropPerHex && p.Helion >= s.Map.SeedLevel - s.Map.SeedDropPerHex);
         }
     }
 
@@ -178,9 +178,9 @@ public class GameTests
         var game = TestGames.New(rounds: 18, setup: TestGames.Cpus(4, "sprinter", "broker"));
         var sprinter = game.Players.Single(p => p.SpeciesId == "sprinter");
         var broker = game.Players.Single(p => p.SpeciesId == "broker");
-        Assert.Equal(3, game.FoodNeed(broker, 6));
-        Assert.Equal(4, game.FoodNeed(broker, 7));
-        Assert.Equal(5, game.FoodNeed(broker, 13));
-        Assert.Equal(4, game.FoodNeed(sprinter, 1));
+        Assert.Equal(6, game.FoodNeed(broker, 6));
+        Assert.Equal(8, game.FoodNeed(broker, 7));
+        Assert.Equal(10, game.FoodNeed(broker, 13));
+        Assert.Equal(8, game.FoodNeed(sprinter, 1));
     }
 }

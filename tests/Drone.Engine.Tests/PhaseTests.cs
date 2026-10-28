@@ -37,14 +37,14 @@ public class LandAuctionTests
 {
     static Game OnePlot(params string[] set) => TestGames.New(
         TestGames.Defaults.With(set.Append("land.storePlotsSpread=0").ToArray()),
-        seats: (g, p) => p.Seat == 0 ? new ScriptedSeat { OnLandBid = (gg, me, a) => a.Position[me.Seat] < 200 ? Move.Up : Move.Hold } : new IdleSeat());
+        seats: (g, p) => p.Seat == 0 ? new ScriptedSeat { OnLandBid = (gg, me, a) => a.Position[me.Seat] < 400 ? Move.Up : Move.Hold } : new IdleSeat());
 
     [Fact]
     public void Unsold_store_plot_halves_the_next_start_price()
     {
         var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0"), seats: (g, p) => new IdleSeat());
         foreach (var _ in LandAuction.RunStoreSales(game)) { }
-        Assert.Equal(160 / 2 - 8, game.Store.LandPrice);
+        Assert.Equal(320 / 2 - 16, game.Store.LandPrice);
         Assert.Single(game.Events.OfType<LandUnsoldEvent>());
     }
 
@@ -56,18 +56,18 @@ public class LandAuctionTests
         foreach (var _ in LandAuction.RunStoreSales(game)) { }
         var sold = game.Events.OfType<LandSoldEvent>().Single();
         Assert.Equal(0, sold.Buyer);
-        Assert.Equal(200, sold.Price);
-        Assert.Equal(cash - 200, game.Players[0].Cash);
-        Assert.Equal(200 - 60, game.Store.LandPrice);
+        Assert.Equal(400, sold.Price);
+        Assert.Equal(cash - 400, game.Players[0].Cash);
+        Assert.Equal(400 - 120, game.Store.LandPrice);
     }
 
     [Fact]
     public void Bid_steps_grow_with_the_price()
     {
         var s = TestGames.Defaults;
-        Assert.Equal(4, LandAuction.Step(s, 160));
-        Assert.Equal(8, LandAuction.Step(s, 400));
-        Assert.Equal(16, LandAuction.Step(s, 900));
+        Assert.Equal(8, LandAuction.Step(s, 320));
+        Assert.Equal(16, LandAuction.Step(s, 800));
+        Assert.Equal(32, LandAuction.Step(s, 1800));
     }
 
     [Fact]
@@ -83,12 +83,12 @@ public class LandAuctionTests
     [Fact]
     public void A_land_surcharge_species_pays_more()
     {
-        var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0", "species.settler.landSurcharge=20"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"),
-            seats: (g, p) => p.SpeciesId == "settler" ? new ScriptedSeat { OnLandBid = (gg, me, a) => a.Position[me.Seat] < 200 ? Move.Up : Move.Hold } : new IdleSeat());
+        var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0", "species.settler.landSurcharge=40"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"),
+            seats: (g, p) => p.SpeciesId == "settler" ? new ScriptedSeat { OnLandBid = (gg, me, a) => a.Position[me.Seat] < 400 ? Move.Up : Move.Hold } : new IdleSeat());
         var settler = game.Players.Single(p => p.SpeciesId == "settler");
         int cash = settler.Cash;
         foreach (var _ in LandAuction.RunStoreSales(game)) { }
-        Assert.Equal(cash - 220, settler.Cash);
+        Assert.Equal(cash - 440, settler.Cash);
     }
 }
 
@@ -258,8 +258,8 @@ public class ProductionTests
         foreach (var p in neighbours.Append(centre)) { p.Owner = me.Seat; p.Drone = Good.Energy; }
         me.Held[(int)Good.Energy] = 0;
         var prod = Production.Run(game);
-        // Base 3, +1 for 4 energy drones (scale step 3), +2 capped learning.
-        Assert.Equal(3 + 1 + 2, prod.Output[centre.Index]);
+        // Base 6, +2 for 4 energy drones (scale step 3), +2 x 2 capped learning.
+        Assert.Equal(6 + 2 + 4, prod.Output[centre.Index]);
     }
 
     [Fact]
@@ -269,7 +269,8 @@ public class ProductionTests
         var me = game.Players[0];
         var plots = game.Map.Plots.Where(p => p.Terrain == Terrain.Plain).Take(3).ToList();
         foreach (var p in plots) { p.Owner = me.Seat; p.Drone = Good.Food; }
-        me.Held[(int)Good.Energy] = 1;
+        // 3 food drones need 6 energy; 2 held leaves 4 missing, 2 drones' worth.
+        me.Held[(int)Good.Energy] = 2;
         var prod = Production.Run(game);
         Assert.Equal(2, plots.Count(p => prod.Output[p.Index] == 0));
         Assert.Equal(2, prod.Shortage[me.Seat]);
@@ -296,20 +297,21 @@ public class GoodsAuctionTests
         var s = TestGames.Defaults.With("game.speciesEnabled=false");
         var game = TestGames.New(s, seats: (g, p) => p.Seat switch
         {
-            0 => new ScriptedSeat { OnSide = (_, _, _) => Side.Buy, OnGoods = (gg, me, a) => me.Held[(int)Good.Food] < 6 ? new GoodsMove(Move.Up) : new GoodsMove(Move.Down) },
+            0 => new ScriptedSeat { OnSide = (_, _, _) => Side.Buy, OnGoods = (gg, me, a) => me.Held[(int)Good.Food] < 12 ? new GoodsMove(Move.Up) : new GoodsMove(Move.Down) },
             1 => new ScriptedSeat { OnSide = (_, _, _) => Side.Sell, OnGoods = (gg, me, a) => new GoodsMove(Move.Down, BelowNeed: true) },
             _ => new IdleSeat(),
         });
-        game.Players[0].Held[(int)Good.Food] = 3;
-        game.Players[1].Held[(int)Good.Food] = 30;
-        foreach (var p in game.Players.Skip(2)) p.Held[(int)Good.Food] = 3;
+        game.Players[0].Held[(int)Good.Food] = 6;
+        game.Players[1].Held[(int)Good.Food] = 60;
+        foreach (var p in game.Players.Skip(2)) p.Held[(int)Good.Food] = 6;
         foreach (var _ in GoodsAuction.Run(game, Good.Food)) { }
         var trades = game.Events.OfType<TradeEvent>().ToList();
         Assert.NotEmpty(trades);
-        // Player 0 buys up to 6 food; player 1 sells everything it has left (27 after use, 14 after
+        // Player 0 buys up to 12 food; player 1 sells everything it has left (54 after use, 27 after
         // spoilage) down to 0, pushing on below its need line, the rest to the store.
-        // (It walks away one line at a time, so a few more units can go before it is clear of the seller.)
-        Assert.InRange(game.Players[0].Held[(int)Good.Food], 6, 10);
+        // (It walks away one line at a time while the seller follows it down, so some more units go
+        // before it is clear: about 10 at the x2 scale, about 3 in x1 units at the original scale.)
+        Assert.InRange(game.Players[0].Held[(int)Good.Food], 12, 24);
         Assert.Equal(0, game.Players[1].Held[(int)Good.Food]);
         Assert.All(trades, t => Assert.True(t.Price >= 0));
         Assert.Contains(trades, t => t.Seller == 1 && t.Buyer == -1);
@@ -338,10 +340,10 @@ public class GoodsAuctionTests
     {
         var game = TestGames.New(TestGames.Defaults.With("game.speciesEnabled=false"));
         var p = game.Players[0];
-        p.Held[(int)Good.Food] = 13;
+        p.Held[(int)Good.Food] = 26;
         GoodsAuction.Prepare(game, Good.Food);
-        // 13 - 3 used = 10, half spoils = 5.
-        Assert.Equal(5, p.Held[(int)Good.Food]);
+        // 26 - 6 used = 20, half spoils = 10.
+        Assert.Equal(10, p.Held[(int)Good.Food]);
         p.Held[(int)Good.Crystite] = 60;
         GoodsAuction.Prepare(game, Good.Crystite);
         Assert.Equal(48, p.Held[(int)Good.Crystite]);
