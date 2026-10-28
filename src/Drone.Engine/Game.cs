@@ -121,7 +121,7 @@ public sealed class Game
     public int EnergyNeed(Player p)
     {
         int drones = Map.Plots.Count(x => x.Owner == p.Seat && x.Drone is { } d && d != Good.Energy);
-        int free = p.Species.FreeEnergyEvery > 0 ? drones / p.Species.FreeEnergyEvery : 0;
+        int free = p.Species.FreeEnergyEvery > 0 ? drones / p.Species.FreeEnergyEvery * p.Species.FreeEnergy : 0;
         return (int)Math.Ceiling(drones * Settings.Production.EnergyPerDrone - 1e-9) - free;
     }
 

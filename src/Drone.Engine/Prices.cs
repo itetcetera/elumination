@@ -35,7 +35,7 @@ public static class Prices
 
         // Ore: the store's stock (half its ore plus its drones) against the drones the colony wants.
         double scale = game.PlotScale;
-        int oreSupply = store.Stock[(int)Good.Ore] / 2 + store.Drones;
+        int oreSupply = store.Stock[(int)Good.Ore] / game.Settings.Store.OrePerDrone + store.Drones;
         int free = game.Map.FreePlots.Count();
         int empty = game.Map.Plots.Count(p => p.Owner >= 0 && p.Drone == null);
         int oreDemand = (int)Math.Min(Math.Min(free, s.OreDemandFreePlots * scale) + empty, s.OreDemandCap * scale);

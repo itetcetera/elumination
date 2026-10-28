@@ -29,7 +29,7 @@ public sealed class CpuSeat : ISeat
         else if (good == Good.Energy)
         {
             int prod = ProducedEstimate(game, me, Good.Energy);
-            if (me.Held[(int)Good.Energy] + prod < game.EnergyNeed(me) + 1) price += c.ShortBonus;
+            if (me.Held[(int)Good.Energy] + prod < game.EnergyNeed(me) + s.Auction.EnergyLineExtra) price += c.ShortBonus;
             else if (prod == 0) price += c.NoneYetBonus;
         }
         return price;
@@ -47,7 +47,7 @@ public sealed class CpuSeat : ISeat
         int best = 0;
         foreach (var q in game.Map.Plots)
             if (q.Assayed && q.Deposit(good) > 0)
-                best = Math.Max(best, q.Deposit(good) - game.Map.Distance(plot, q));
+                best = Math.Max(best, q.Deposit(good) - game.Map.Distance(plot, q) * game.Settings.Map.SeedDropPerHex);
         return best;
     }
 
@@ -60,8 +60,8 @@ public sealed class CpuSeat : ISeat
         if (good.IsExport()) b = KnownDeposit(game, plot, good);
         if (good.IsExport() && b == 0) return 0;
         int same = game.PlotsOf(me).Count(x => x.Drone == good && x != plot) + 1;
-        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == me.Seat && n.Drone == good));
-        int v = Math.Clamp(b.Value + same / s.Production.ScaleStep + learn, 0, s.Production.MaxOutput);
+        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == me.Seat && n.Drone == good)) * s.Production.LearningBonus;
+        int v = Math.Clamp(b.Value + same / s.Production.ScaleStep * s.Production.ScaleBonus + learn, 0, s.Production.MaxOutput);
         return good == Good.Food ? Production.FoodAfterSpecies(me, v) : v;
     }
 
@@ -82,8 +82,8 @@ public sealed class CpuSeat : ISeat
 
     /// <summary>What running a drone of this job costs in energy each round.</summary>
     public static double EnergyCost(Game game, Player me, Good job)
-        => job == Good.Energy ? 0 : game.Settings.Production.EnergyPerDrone
-            * (me.Species.FreeEnergyEvery > 0 ? 1.0 - 1.0 / me.Species.FreeEnergyEvery : 1.0) * UnitValue(game, me, Good.Energy);
+        => job == Good.Energy ? 0 : (game.Settings.Production.EnergyPerDrone
+            - (me.Species.FreeEnergyEvery > 0 ? (double)me.Species.FreeEnergy / me.Species.FreeEnergyEvery : 0)) * UnitValue(game, me, Good.Energy);
 
     // ---------- Land draft ----------
 
@@ -91,7 +91,7 @@ public sealed class CpuSeat : ISeat
     {
         double pen = game.Settings.Cpu.DistancePenalty;
         return game.Map.FreePlots
-            .Select(p => (p, score: BestJob(game, me, p).Value - pen * 5 * game.Map.TownDistance(p) + game.CpuRng.NextDouble()))
+            .Select(p => (p, score: BestJob(game, me, p).Value - pen * game.Settings.Cpu.DraftDistanceCost * game.Map.TownDistance(p) + game.CpuRng.NextDouble()))
             .OrderByDescending(x => x.score)
             .Take(game.Players.Count)
             .Select(x => x.p.Index)
@@ -233,7 +233,7 @@ public sealed class CpuSeat : ISeat
     {
         var c = game.Settings.Cpu;
         if (t.TimeLeft < c.MinAssaySeconds || t.Leading) return false;
-        int high = game.Map.Plots.Count(p => p.Assayed && (p.Crystite >= 3 || p.Helion >= 3) && (p.Owner == me.Seat || p.Free));
+        int high = game.Map.Plots.Count(p => p.Assayed && (p.Crystite >= game.Settings.Map.SeedLevel || p.Helion >= game.Settings.Map.SeedLevel) && (p.Owner == me.Seat || p.Free));
         if (high >= c.AssayStopAtHigh) return false;
         var s = game.Settings.Turn;
         var store = game.Map.Store;
@@ -309,7 +309,7 @@ public sealed class CpuSeat : ISeat
         }
         else if (a.Good is Good.Food or Good.Energy)
         {
-            int extra = a.Good == Good.Energy ? 1 : 0;
+            int extra = a.Good == Good.Energy ? game.Settings.Auction.EnergyLineExtra : 0;
             if (held > line + extra)
             {
                 plan.Side = Side.Sell;

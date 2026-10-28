@@ -22,7 +22,7 @@ public sealed class Production
         int i = (int)good;
         return plot.Terrain switch
         {
-            Terrain.Mountain => good == Good.Ore ? plot.OreUnits + p.MountainOreBase : p.Mountain[i],
+            Terrain.Mountain => good == Good.Ore ? plot.OreUnits * p.OrePerUnit + p.MountainOreBase : p.Mountain[i],
             Terrain.River or Terrain.Lake => p.Water[i],
             _ => p.Plain[i] + (good == Good.Food && plot.Bank ? p.BankFoodBonus : 0),
         };
@@ -35,8 +35,8 @@ public sealed class Production
         var s = game.Settings;
         if (Base(s, plot, good) is not int b) return 0;
         int same = game.PlotsOf(owner).Count(x => x.Drone == good && x != plot) + 1 + extra;
-        int scale = same / s.Production.ScaleStep;
-        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == good));
+        int scale = same / s.Production.ScaleStep * s.Production.ScaleBonus;
+        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == good)) * s.Production.LearningBonus;
         int v = b + scale + learn;
         v = Math.Clamp(v, 0, s.Production.MaxOutput);
         return good == Good.Food ? FoodAfterSpecies(owner, v) : v;
@@ -56,8 +56,8 @@ public sealed class Production
             if (Base(s, plot, job) is not int b) continue;
             var owner = game.Players[plot.Owner];
             int same = game.PlotsOf(owner).Count(x => x.Drone == job);
-            int v = b + same / s.Production.ScaleStep
-                + Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == job))
+            int v = b + same / s.Production.ScaleStep * s.Production.ScaleBonus
+                + Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == job)) * s.Production.LearningBonus
                 + game.Rng.RoundNormal(s.Production.LuckSpread);
             v = Math.Clamp(v, 0, s.Production.MaxOutput);
             if (job == Good.Food) v = FoodAfterSpecies(owner, v);
@@ -65,10 +65,10 @@ public sealed class Production
         }
         var prod = new Production { Game = game, Output = output };
 
-        // G5: each missing energy unit stops one producing non-energy plot, picked fairly (L2).
+        // G5: each drone's worth of missing energy stops one producing non-energy plot, picked fairly (L2).
         foreach (var p in game.Players)
         {
-            int missing = game.EnergyNeed(p) - p.Held[(int)Good.Energy];
+            int missing = (int)Math.Ceiling((game.EnergyNeed(p) - p.Held[(int)Good.Energy]) / s.Production.EnergyPerDrone - 1e-9);
             int stopped = 0;
             for (int i = 0; i < missing; i++)
             {

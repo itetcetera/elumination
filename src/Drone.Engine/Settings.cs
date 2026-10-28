@@ -171,6 +171,8 @@ public sealed class MapSettings
     public required double[] MountainUnitWeights { get; init; }
     /// <summary>Crystite and Helion seeds start at this level and drop 1 per hex of distance.</summary>
     public required int SeedLevel { get; init; }
+    /// <summary>Deposit levels drop this much per hex away from a seed.</summary>
+    public required int SeedDropPerHex { get; init; }
     /// <summary>Helion seeds keep at least this hex distance from crystite seeds (3 = the seed plots
     /// and their neighbours never overlap, the outer rings may).</summary>
     public required int HelionSeedMinDistance { get; init; }
@@ -336,17 +338,21 @@ public sealed class TurnSettings
 
 public sealed class ProductionSettings
 {
-    /// <summary>Base output [food, energy, ore]; ore on a mountain is units + MountainOreBase.</summary>
+    /// <summary>Base output [food, energy, ore]; ore on a mountain is units x OrePerUnit + MountainOreBase.</summary>
     public required int[] Plain { get; init; }
     public required int[] Mountain { get; init; }
     public required int MountainOreBase { get; init; }
+    public required int OrePerUnit { get; init; }
     public required int[] Water { get; init; }
     /// <summary>Plains touching the river or a lake make this much more food.</summary>
     public required int BankFoodBonus { get; init; }
-    /// <summary>Economies of scale: +1 per this many drones on the same good.</summary>
+    /// <summary>Economies of scale: +ScaleBonus per ScaleStep drones on the same good.</summary>
     public required int ScaleStep { get; init; }
-    /// <summary>Learning curve: +1 per neighbouring own plot with the same good, up to the cap.</summary>
+    public required int ScaleBonus { get; init; }
+    /// <summary>Learning curve: +LearningBonus per neighbouring own plot with the same good, up to
+    /// LearningCap neighbours.</summary>
     public required int LearningCap { get; init; }
+    public required int LearningBonus { get; init; }
     /// <summary>Luck: + round(N(0,1) x Spread).</summary>
     public required double LuckSpread { get; init; }
     public required int MaxOutput { get; init; }
@@ -447,8 +453,9 @@ public sealed class SpeciesSettings
     /// <summary>Food plots making FoodLossFrom or more make FoodLoss less.</summary>
     public required int FoodLoss { get; init; }
     public required int FoodLossFrom { get; init; }
-    /// <summary>One energy free for every this many drones that use energy (0 = none).</summary>
+    /// <summary>FreeEnergy units free for every FreeEnergyEvery drones that use energy (0 = none).</summary>
     public required int FreeEnergyEvery { get; init; }
+    public required int FreeEnergy { get; init; }
     /// <summary>Dollars added to each drone this species buys.</summary>
     public required int DroneSurcharge { get; init; }
     /// <summary>Personal events in money or goods are divided by these (bad, good).</summary>
@@ -465,6 +472,8 @@ public sealed class CpuSettings
     public required double MinJobSeconds { get; init; }
     public required double MinAssaySeconds { get; init; }
     public required int MinJobGain { get; init; }
+    /// <summary>Dollars a CPU knocks off a plot's draft value per hex from town.</summary>
+    public required double DraftDistanceCost { get; init; }
     /// <summary>Unit value bonuses when short of food or energy.</summary>
     public required int ShortBonus { get; init; }
     public required int NoneYetBonus { get; init; }
