@@ -229,6 +229,8 @@
     "sellerMinUnder": 0.1,
     "concedeShare": 0.7,
     "huntSideRewards": true,
+    "glimmerHuntSeconds": 10,
+    "glimmerReactSeconds": 0.4,
     "assayStopAtHigh": 3,
     "distancePenalty": 1.0
   }

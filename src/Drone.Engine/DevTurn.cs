@@ -25,6 +25,8 @@ public sealed record QuickSale(int Plot) : TurnCommand;
 public sealed record CatchGlimmer : TurnCommand;
 public sealed record CatchCrate : TurnCommand;
 public sealed record Wait(double Seconds) : TurnCommand;
+/// <summary>Marks the start of a Glimmer hunt (no time; for the hunt statistics).</summary>
+public sealed record HuntGlimmer : TurnCommand;
 /// <summary>Gamble at the pub (in the store): ends the turn (F10).</summary>
 public sealed record Pub : TurnCommand;
 public sealed record EndTurn : TurnCommand;
@@ -180,6 +182,9 @@ public sealed class DevTurn
                 break;
             case CatchGlimmer:
                 TryGlimmer();
+                break;
+            case HuntGlimmer:
+                Log("glimmerHunt");
                 break;
             case CatchCrate:
                 TryCrate();

@@ -499,6 +499,9 @@ public sealed class CpuSettings
     public required double ConcedeShare { get; init; }
     /// <summary>Hunt the Glimmer / supply crate when it pays better than the pub.</summary>
     public required bool HuntSideRewards { get; init; }
+    /// <summary>Glimmer: the longest a CPU hunts, and how long it takes to react when it shows.</summary>
+    public required double GlimmerHuntSeconds { get; init; }
+    public required double GlimmerReactSeconds { get; init; }
     public required int AssayStopAtHigh { get; init; }
     public required double DistancePenalty { get; init; }
 }

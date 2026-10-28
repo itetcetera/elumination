@@ -31,6 +31,8 @@ public sealed record GameStats
     /// <summary>Plots bought at auction, and how many waited 2+ rounds for a drone (or never got one).</summary>
     public required int AuctionPlots { get; init; }
     public required int AuctionPlotsIdle { get; init; }
+    public required int GlimmerHunts { get; init; }
+    public required int GlimmerCatches { get; init; }
     public required Dictionary<string, int> RoundEvents { get; init; }
 
     public static GameStats From(Game game)
@@ -103,6 +105,8 @@ public sealed record GameStats
             ShortageStops = events.OfType<ProductionEvent>().Sum(e => e.Shortage),
             AuctionPlots = events.OfType<LandSoldEvent>().Count(),
             AuctionPlotsIdle = idle,
+            GlimmerHunts = events.OfType<TurnActionEvent>().Count(e => e.Action == "glimmerHunt"),
+            GlimmerCatches = events.OfType<TurnActionEvent>().Count(e => e.Action == "glimmer"),
             RoundEvents = events.OfType<RoundEventHappened>().GroupBy(e => e.Kind.ToString()).ToDictionary(g => g.Key, g => g.Count()),
         };
     }

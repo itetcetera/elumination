@@ -148,6 +148,7 @@ public sealed class CpuSeat : ISeat
     readonly HashSet<int> _tried = [];
     int _commands;
     int _crateTarget = -1;
+    double _huntUntil = -1;
 
     public TurnCommand? Turn(Game game, Player me, DevTurn t)
     {
@@ -158,6 +159,7 @@ public sealed class CpuSeat : ISeat
             _tried.Clear();
             _commands = 0;
             _crateTarget = -1;
+            _huntUntil = -1;
         }
         else if (t.Message != null)
         {
@@ -170,6 +172,7 @@ public sealed class CpuSeat : ISeat
         if (PlanJob(game, me, t)) return _plan.Dequeue();
         if (PlanAssay(game, me, t)) return _plan.Dequeue();
         if (PlanCrate(game, me, t)) return _plan.Dequeue();
+        if (HuntGlimmer(game, me, t) is { } hunt) return hunt;
         return new Pub();
     }
 
@@ -255,6 +258,36 @@ public sealed class CpuSeat : ISeat
             return true;
         }
         return false;
+    }
+
+    /// <summary>Hunts the Glimmer like a player would: it only sees where it shows right now, walks
+    /// there after a moment's reaction, and waits on that mountain in case it shows there again.</summary>
+    TurnCommand? HuntGlimmer(Game game, Player me, DevTurn t)
+    {
+        var c = game.Settings.Cpu;
+        var s = game.Settings.Turn;
+        if (!c.HuntSideRewards || t.Leading || t.Glimmer.Caught || t.Glimmer.Shows.Count == 0) return null;
+        double pubTrip = TownTrip(game, t, game.Map.Store) + s.PubSeconds;
+        if (_huntUntil < 0)
+        {
+            // Worth it when half the reward beats what the hunting time would cost at the pub.
+            double hunt = Math.Min(c.GlimmerHuntSeconds, t.TimeLeft - pubTrip - 2);
+            if (hunt < 3) return null;
+            double pubLoss = DevTurn.ExpectedPub(game, t.TimeLeft - pubTrip) - DevTurn.ExpectedPub(game, t.TimeLeft - pubTrip - hunt);
+            if (s.GlimmerReward[game.Band] / 2.0 <= pubLoss) return null;
+            _huntUntil = t.Elapsed + hunt;
+            return new HuntGlimmer();
+        }
+        if (t.Elapsed >= _huntUntil || t.TimeLeft - pubTrip < 2) return null;
+        if (t.Glimmer.ShowingAt(t.Elapsed) is { } at)
+        {
+            if (!t.InTown && t.Location.Index == at) return new CatchGlimmer();
+            _plan.Enqueue(new WalkTo(at));
+            _commands--;
+            return new Wait(c.GlimmerReactSeconds);
+        }
+        _commands--;
+        return new Wait(0.1);
     }
 
     bool PlanCrate(Game game, Player me, DevTurn t)
