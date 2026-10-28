@@ -105,7 +105,8 @@ These are starting points in the settings, to confirm or change:
 - Species: Sprinter walks 1.25x and needs 1 more food; Broker moves 1.33x faster in auctions and
   starts with $200 less; Prospector assays in half the time and its food drones make 85%; Engineer's
   drones use 75% energy and cost 15% more; Survivor takes half of bad events and gets 60% of good
-  ones; Settler drafts first ("wins ties" read as first pick) and pays 10% more for land.
+  ones; Settler is the normal species with no ability and no cost (Marcus, 2026-10-28). The
+  draft-first ability is still in the engine (`draftFirst`, `landPrice`) for sweeps.
 - Export spoilage: crystite 20%, Helion 10% a round; Helion price 80-120 (crystite 50-149).
 - New events per 11 rounds: Ice raiders 1 (take half of held Helion), Comet 2, Supply ship 2
   (+8 food, +8 energy to the store), Drone malfunction 2.
@@ -117,8 +118,10 @@ These are starting points in the settings, to confirm or change:
 
 From 1,000 games at each length:
 
-- Species are not balanced yet. The Settler wins 41% (12 rounds) to 56% (24 rounds); the Sprinter
-  13-17%. First pick in the draft is worth much more than a 10% land surcharge.
+- With the Settler as the normal species (no ability, no cost), the field is much closer: at 12
+  rounds the Engineer wins 31%, the Settler 24%, the Sprinter 20% (25% is even); at 24 rounds the
+  Prospector and Engineer win 32%, the Sprinter 18%. The Sprinter's extra food costs more than its
+  speed earns. (The earlier draft-first Settler won 41-56%.)
 - Exports take over in longer games: 46% of the winner's wealth at 12 rounds, 69% at 18, 79% at 24.
   This is the "crystite grab" the design doc wants to avoid; spoilage and price bands are the
   knobs.

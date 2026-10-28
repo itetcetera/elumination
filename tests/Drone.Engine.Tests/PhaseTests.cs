@@ -17,9 +17,9 @@ public class DraftTests
     }
 
     [Fact]
-    public void A_settler_drafts_first()
+    public void A_draft_first_species_drafts_first()
     {
-        var game = TestGames.New(setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"));
+        var game = TestGames.New(TestGames.Defaults.With("species.settler.draftFirst=true"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"));
         Assert.Equal("settler", LandGrant.Order(game)[0].SpeciesId);
     }
 
@@ -81,9 +81,9 @@ public class LandAuctionTests
     }
 
     [Fact]
-    public void A_settler_pays_the_land_surcharge()
+    public void A_land_surcharge_species_pays_more()
     {
-        var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"),
+        var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0", "species.settler.landPrice=1.1"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"),
             seats: (g, p) => p.SpeciesId == "settler" ? new ScriptedSeat { OnLandBid = (gg, me, a) => a.Position[me.Seat] < 200 ? Move.Up : Move.Hold } : new IdleSeat());
         var settler = game.Players.Single(p => p.SpeciesId == "settler");
         int cash = settler.Cash;

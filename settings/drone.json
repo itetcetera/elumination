@@ -202,7 +202,7 @@
     "prospector": { "ability": "Assays in half the time; less food",    "walkSpeed": 1.0,  "extraFoodNeed": 0, "auctionSpeed": 1.0,  "cashDelta": 0,    "assayTime": 0.5, "foodOutput": 0.85, "droneEnergyUse": 1.0,  "dronePrice": 1.0,  "badEventSize": 1.0, "goodEventChance": 1.0, "draftFirst": false, "landPrice": 1.0 },
     "engineer":   { "ability": "Drones use less energy; cost more",     "walkSpeed": 1.0,  "extraFoodNeed": 0, "auctionSpeed": 1.0,  "cashDelta": 0,    "assayTime": 1.0, "foodOutput": 1.0,  "droneEnergyUse": 0.75, "dronePrice": 1.15, "badEventSize": 1.0, "goodEventChance": 1.0, "draftFirst": false, "landPrice": 1.0 },
     "survivor":   { "ability": "Bad events hit softer; fewer good ones","walkSpeed": 1.0,  "extraFoodNeed": 0, "auctionSpeed": 1.0,  "cashDelta": 0,    "assayTime": 1.0, "foodOutput": 1.0,  "droneEnergyUse": 1.0,  "dronePrice": 1.0,  "badEventSize": 0.5, "goodEventChance": 0.6, "draftFirst": false, "landPrice": 1.0 },
-    "settler":    { "ability": "Picks first in the draft; pays more for land", "walkSpeed": 1.0, "extraFoodNeed": 0, "auctionSpeed": 1.0, "cashDelta": 0, "assayTime": 1.0, "foodOutput": 1.0, "droneEnergyUse": 1.0, "dronePrice": 1.0, "badEventSize": 1.0, "goodEventChance": 1.0, "draftFirst": true, "landPrice": 1.1 }
+    "settler":    { "ability": "None: the normal colonist, plain rules", "walkSpeed": 1.0, "extraFoodNeed": 0, "auctionSpeed": 1.0, "cashDelta": 0, "assayTime": 1.0, "foodOutput": 1.0, "droneEnergyUse": 1.0, "dronePrice": 1.0, "badEventSize": 1.0, "goodEventChance": 1.0, "draftFirst": false, "landPrice": 1.0 }
   },
   "cpu": {
     "minJobSeconds": 16.3,
