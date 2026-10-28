@@ -323,8 +323,6 @@ public sealed class TurnSettings
     public required int PubCapTo { get; init; }
     /// <summary>The Glimmer: shows for ShowSeconds[min,max], hides for HideSeconds[min,max], moves on
     /// MoveChance when hiding. Reward by quarter band.</summary>
-    /// <summary>The walking speed species compare against (WalkHexes per this many hexes).</summary>
-    public required int SpeciesWalkBase { get; init; }
     public required double[] GlimmerShowSeconds { get; init; }
     public required double[] GlimmerHideSeconds { get; init; }
     public required double GlimmerMoveChance { get; init; }
@@ -438,8 +436,8 @@ public sealed class ScoringSettings
 public sealed class SpeciesSettings
 {
     public required string Ability { get; init; }
-    /// <summary>Hexes walked in the time others walk Turn.SpeciesWalkBase (4).</summary>
-    public required int WalkHexes { get; init; }
+    /// <summary>Walking speed in percent (100 = normal; 125 walks 25% faster).</summary>
+    public required int WalkSpeedPercent { get; init; }
     public required int ExtraFoodNeed { get; init; }
     /// <summary>Auction lines moved in the time others move Auction.SpeciesMoveBase (3).</summary>
     public required int AuctionLines { get; init; }

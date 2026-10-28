@@ -102,13 +102,13 @@ These are starting points in the settings, to confirm or change:
   0 / 1 / 2 on the river above and below the store; river-bank food bonus +1.
 - Walking costs per hex (plain 0.93 s, mountain 1.6 s, water 1.3 s) and town visit times are set so
   a job costs about what the original CPU's time model charged (25 + 4 x distance time pixels).
-- Species, all in whole amounts (Marcus, 2026-10-28): Sprinter walks 5 hexes in the time others
-  walk 4 and needs 1 more food; Broker moves 4 auction lines in the time others move 3 and starts
-  with $200 less; Prospector assays in half the time and its food plots making 3 or more make 1
-  less; Engineer gets 1 free energy per 4 drones and pays $15 more per drone; Survivor's money and
-  goods events are halved, bad and good alike; Settler is the normal species with no ability and
-  no cost. The draft-first ability and a land surcharge are still in the engine (`draftFirst`,
-  `landSurcharge`) for sweeps.
+- Species (Marcus, 2026-10-28: costs and benefits in whole amounts; speeds may be percentages):
+  Sprinter walks 50% faster and needs 1 more food each turn; Broker moves 4 auction lines in the
+  time others move 3 and starts with $200 less; Prospector assays in half the time and its food
+  plots making 3 or more make 1 less; Engineer gets 1 free energy per 5 drones and pays $40 more
+  per drone; Survivor's money and goods events are halved, bad and good alike; Settler is the
+  normal species with no ability and no cost. The draft-first ability and a land surcharge are
+  still in the engine (`draftFirst`, `landSurcharge`) for sweeps.
 - Export spoilage: crystite 20%, Helion 10% a round; Helion price 80-120 (crystite 50-149).
 - New events per 11 rounds: Ice raiders 1 (take half of held Helion), Comet 2, Supply ship 2
   (+8 food, +8 energy to the store), Drone malfunction 2.

@@ -100,7 +100,6 @@
     "glimmerHideSeconds": [1.87, 3.27],
     "glimmerMoveChance": 0.5,
     "glimmerReward": [100, 200, 300, 400],
-    "speciesWalkBase": 4,
     "crateHexSeconds": 3.0,
     "crateCashChance": 0.5,
     "crateCash": [50, 100, 150, 200],
@@ -198,13 +197,13 @@
     ]
   },
   "species": {
-    "plain":      { "ability": "No ability (species off)", "walkHexes": 4, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
-    "settler":    { "ability": "None: the normal colonist, plain rules", "walkHexes": 4, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
-    "sprinter":   { "ability": "Walks 5 hexes in the time others walk 4; needs 1 more food", "walkHexes": 5, "extraFoodNeed": 1, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
-    "broker":     { "ability": "Moves 4 auction lines in the time others move 3; starts with $200 less", "walkHexes": 4, "extraFoodNeed": 0, "auctionLines": 4, "cashDelta": -200, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
-    "prospector": { "ability": "Assays in half the time; food plots making 3+ make 1 less", "walkHexes": 4, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 2, "foodLoss": 1, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
-    "engineer":   { "ability": "1 free energy per 4 drones; drones cost $15 more", "walkHexes": 4, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 4, "droneSurcharge": 15, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
-    "survivor":   { "ability": "Bad events cost half; good events pay half", "walkHexes": 4, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 2, "goodEventDivisor": 2, "draftFirst": false, "landSurcharge": 0 }
+    "plain":      { "ability": "No ability (species off)", "walkSpeedPercent": 100, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
+    "settler":    { "ability": "None: the normal colonist, plain rules", "walkSpeedPercent": 100, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
+    "sprinter":   { "ability": "Walks 50% faster; needs 1 more food each turn", "walkSpeedPercent": 150, "extraFoodNeed": 1, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
+    "broker":     { "ability": "Moves 4 auction lines in the time others move 3; starts with $200 less", "walkSpeedPercent": 100, "extraFoodNeed": 0, "auctionLines": 4, "cashDelta": -200, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
+    "prospector": { "ability": "Assays in half the time; food plots making 3+ make 1 less", "walkSpeedPercent": 100, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 2, "foodLoss": 1, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
+    "engineer":   { "ability": "1 free energy per 5 drones; drones cost $40 more", "walkSpeedPercent": 100, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 5, "droneSurcharge": 40, "badEventDivisor": 1, "goodEventDivisor": 1, "draftFirst": false, "landSurcharge": 0 },
+    "survivor":   { "ability": "Bad events cost half; good events pay half", "walkSpeedPercent": 100, "extraFoodNeed": 0, "auctionLines": 3, "cashDelta": 0, "assayDivisor": 1, "foodLoss": 0, "foodLossFrom": 3, "freeEnergyEvery": 0, "droneSurcharge": 0, "badEventDivisor": 2, "goodEventDivisor": 2, "draftFirst": false, "landSurcharge": 0 }
   },
   "cpu": {
     "minJobSeconds": 16.3,

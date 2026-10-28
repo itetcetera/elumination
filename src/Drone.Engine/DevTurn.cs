@@ -199,7 +199,7 @@ public sealed class DevTurn
             Terrain.River or Terrain.Lake => T.WalkWaterSeconds,
             _ => T.WalkPlainSeconds,
         };
-        return s * T.SpeciesWalkBase / Player.Species.WalkHexes;
+        return s * 100 / Player.Species.WalkSpeedPercent;
     }
 
     /// <summary>The quickest path between two plots (terrain slows walking).</summary>
