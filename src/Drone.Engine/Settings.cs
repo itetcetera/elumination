@@ -323,6 +323,8 @@ public sealed class TurnSettings
     public required int PubCapTo { get; init; }
     /// <summary>The Glimmer: shows for ShowSeconds[min,max], hides for HideSeconds[min,max], moves on
     /// MoveChance when hiding. Reward by quarter band.</summary>
+    /// <summary>The walking speed species compare against (WalkHexes per this many hexes).</summary>
+    public required int SpeciesWalkBase { get; init; }
     public required double[] GlimmerShowSeconds { get; init; }
     public required double[] GlimmerHideSeconds { get; init; }
     public required double GlimmerMoveChance { get; init; }
@@ -412,6 +414,8 @@ public sealed class AuctionSettings
     public required int EnergyLineExtra { get; init; }
     /// <summary>Players move one scale line every this many seconds.</summary>
     public required double MoveSeconds { get; init; }
+    /// <summary>The auction speed species compare against (AuctionLines per this many lines).</summary>
+    public required int SpeciesMoveBase { get; init; }
     /// <summary>First unit of a trade takes FirstUnitSeconds, each next one is quicker down to MinUnitSeconds.</summary>
     public required double FirstUnitSeconds { get; init; }
     public required double MinUnitSeconds { get; init; }
@@ -430,21 +434,31 @@ public sealed class ScoringSettings
     public required string[] Verdicts { get; init; }
 }
 
+/// <summary>A species' ability and its cost, all in whole amounts (Marcus, 2026-10-28).</summary>
 public sealed class SpeciesSettings
 {
     public required string Ability { get; init; }
-    public required double WalkSpeed { get; init; }
+    /// <summary>Hexes walked in the time others walk Turn.SpeciesWalkBase (4).</summary>
+    public required int WalkHexes { get; init; }
     public required int ExtraFoodNeed { get; init; }
-    public required double AuctionSpeed { get; init; }
+    /// <summary>Auction lines moved in the time others move Auction.SpeciesMoveBase (3).</summary>
+    public required int AuctionLines { get; init; }
     public required int CashDelta { get; init; }
-    public required double AssayTime { get; init; }
-    public required double FoodOutput { get; init; }
-    public required double DroneEnergyUse { get; init; }
-    public required double DronePrice { get; init; }
-    public required double BadEventSize { get; init; }
-    public required double GoodEventChance { get; init; }
+    /// <summary>Assays take 1/AssayDivisor of the time.</summary>
+    public required int AssayDivisor { get; init; }
+    /// <summary>Food plots making FoodLossFrom or more make FoodLoss less.</summary>
+    public required int FoodLoss { get; init; }
+    public required int FoodLossFrom { get; init; }
+    /// <summary>One energy free for every this many drones that use energy (0 = none).</summary>
+    public required int FreeEnergyEvery { get; init; }
+    /// <summary>Dollars added to each drone this species buys.</summary>
+    public required int DroneSurcharge { get; init; }
+    /// <summary>Personal events in money or goods are divided by these (bad, good).</summary>
+    public required int BadEventDivisor { get; init; }
+    public required int GoodEventDivisor { get; init; }
     public required bool DraftFirst { get; init; }
-    public required double LandPrice { get; init; }
+    /// <summary>Dollars added to the price of each plot won at auction.</summary>
+    public required int LandSurcharge { get; init; }
 }
 
 public sealed class CpuSettings

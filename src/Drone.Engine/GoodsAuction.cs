@@ -147,7 +147,7 @@ public sealed class GoodsAuction
                 moving = true;
                 if (_cooldown[p.Seat] > 0) continue;
                 MovePlayer(game, p, m.Move);
-                _cooldown[p.Seat] = Math.Max(1, game.Ticks(s.MoveSeconds / p.Species.AuctionSpeed));
+                _cooldown[p.Seat] = Math.Max(1, game.Ticks(s.MoveSeconds * s.SpeciesMoveBase / p.Species.AuctionLines));
             }
             for (int i = 0; i < _cooldown.Length; i++) if (_cooldown[i] > 0) _cooldown[i]--;
 

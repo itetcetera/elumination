@@ -39,8 +39,12 @@ public sealed class Production
         int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == good));
         int v = b + scale + learn;
         v = Math.Clamp(v, 0, s.Production.MaxOutput);
-        return good == Good.Food ? (int)Math.Round(v * owner.Species.FoodOutput) : v;
+        return good == Good.Food ? FoodAfterSpecies(owner, v) : v;
     }
+
+    /// <summary>The Prospector's cost: bigger food plots make a little less.</summary>
+    public static int FoodAfterSpecies(Player owner, int v)
+        => v >= owner.Species.FoodLossFrom ? Math.Max(0, v - owner.Species.FoodLoss) : v;
 
     public static Production Run(Game game)
     {
@@ -56,7 +60,7 @@ public sealed class Production
                 + Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == job))
                 + game.Rng.RoundNormal(s.Production.LuckSpread);
             v = Math.Clamp(v, 0, s.Production.MaxOutput);
-            if (job == Good.Food) v = (int)Math.Round(v * owner.Species.FoodOutput);
+            if (job == Good.Food) v = FoodAfterSpecies(owner, v);
             output[plot.Index] = v;
         }
         var prod = new Production { Game = game, Output = output };

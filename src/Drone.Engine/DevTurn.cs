@@ -199,7 +199,7 @@ public sealed class DevTurn
             Terrain.River or Terrain.Lake => T.WalkWaterSeconds,
             _ => T.WalkPlainSeconds,
         };
-        return s / Player.Species.WalkSpeed;
+        return s * T.SpeciesWalkBase / Player.Species.WalkHexes;
     }
 
     /// <summary>The quickest path between two plots (terrain slows walking).</summary>
@@ -363,7 +363,7 @@ public sealed class DevTurn
         foreach (var x in EnterTown(Game.Map.Store)) yield return x;
         if (!InTown || Location != Game.Map.Store) yield break;
         // The office, out to the plot for a sample, and (unless a beginner, who reads it at the plot) back.
-        double f = Player.Species.AssayTime;
+        double f = 1.0 / Player.Species.AssayDivisor;
         double trip = T.AssayOfficeSeconds + T.ExitTownSeconds + WalkSeconds(Game.Map.Store, plot) + T.SampleSeconds;
         if (!Player.Beginner) trip += WalkSeconds(plot, Game.Map.Store) + T.EnterTownSeconds;
         foreach (var x in Take(trip * f, r => ok = r)) yield return x;

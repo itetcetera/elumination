@@ -121,7 +121,8 @@ public sealed class Game
     public int EnergyNeed(Player p)
     {
         int drones = Map.Plots.Count(x => x.Owner == p.Seat && x.Drone is { } d && d != Good.Energy);
-        return (int)Math.Ceiling(drones * Settings.Production.EnergyPerDrone * p.Species.DroneEnergyUse - 1e-9);
+        int free = p.Species.FreeEnergyEvery > 0 ? drones / p.Species.FreeEnergyEvery : 0;
+        return (int)Math.Ceiling(drones * Settings.Production.EnergyPerDrone - 1e-9) - free;
     }
 
     public IEnumerable<Plot> PlotsOf(Player p) => Map.Plots.Where(x => x.Owner == p.Seat);
@@ -129,7 +130,7 @@ public sealed class Game
     /// <summary>Players from the leader down.</summary>
     public IReadOnlyList<Player> ByRank => Players.OrderBy(p => p.Rank).ToList();
 
-    public int DronePriceFor(Player p) => (int)Math.Round(Store.DronePrice * p.Species.DronePrice);
+    public int DronePriceFor(Player p) => Store.DronePrice + p.Species.DroneSurcharge;
 
     public void Emit(GameEvent e) => Events.Add(e);
 

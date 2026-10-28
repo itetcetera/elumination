@@ -83,7 +83,7 @@ public class LandAuctionTests
     [Fact]
     public void A_land_surcharge_species_pays_more()
     {
-        var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0", "species.settler.landPrice=1.1"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"),
+        var game = TestGames.New(TestGames.Defaults.With("land.storePlotsSpread=0", "species.settler.landSurcharge=20"), setup: TestGames.Cpus(4, "settler", "broker", "engineer", "survivor"),
             seats: (g, p) => p.SpeciesId == "settler" ? new ScriptedSeat { OnLandBid = (gg, me, a) => a.Position[me.Seat] < 200 ? Move.Up : Move.Hold } : new IdleSeat());
         var settler = game.Players.Single(p => p.SpeciesId == "settler");
         int cash = settler.Cash;

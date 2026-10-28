@@ -32,10 +32,10 @@ public sealed class LandAuction
         return step;
     }
 
-    /// <summary>The most a player can bid: their cash, less the Settler's land surcharge.</summary>
-    public static int MaxBid(Player p) => (int)Math.Floor(p.Cash / p.Species.LandPrice);
+    /// <summary>The most a player can bid: their cash, less any species land surcharge.</summary>
+    public static int MaxBid(Player p) => p.Cash - p.Species.LandSurcharge;
 
-    public static int PricePaid(Player p, int bid) => (int)Math.Round(bid * p.Species.LandPrice);
+    public static int PricePaid(Player p, int bid) => bid + p.Species.LandSurcharge;
 
     public static IEnumerable<int> RunPlayerSales(Game game)
     {

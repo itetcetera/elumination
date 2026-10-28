@@ -62,7 +62,7 @@ public sealed class CpuSeat : ISeat
         int same = game.PlotsOf(me).Count(x => x.Drone == good && x != plot) + 1;
         int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == me.Seat && n.Drone == good));
         int v = Math.Clamp(b.Value + same / s.Production.ScaleStep + learn, 0, s.Production.MaxOutput);
-        return good == Good.Food ? (int)Math.Round(v * me.Species.FoodOutput) : v;
+        return good == Good.Food ? Production.FoodAfterSpecies(me, v) : v;
     }
 
     /// <summary>The best job for a plot and its value per round.</summary>
@@ -82,7 +82,8 @@ public sealed class CpuSeat : ISeat
 
     /// <summary>What running a drone of this job costs in energy each round.</summary>
     public static double EnergyCost(Game game, Player me, Good job)
-        => job == Good.Energy ? 0 : game.Settings.Production.EnergyPerDrone * me.Species.DroneEnergyUse * UnitValue(game, me, Good.Energy);
+        => job == Good.Energy ? 0 : game.Settings.Production.EnergyPerDrone
+            * (me.Species.FreeEnergyEvery > 0 ? 1.0 - 1.0 / me.Species.FreeEnergyEvery : 1.0) * UnitValue(game, me, Good.Energy);
 
     // ---------- Land draft ----------
 
@@ -243,7 +244,7 @@ public sealed class CpuSeat : ISeat
             .ToList();
         foreach (var (p, _) in options)
         {
-            double trip = (s.AssayOfficeSeconds + s.ExitTownSeconds + 2 * t.WalkSeconds(store, p) + s.SampleSeconds + s.EnterTownSeconds) * me.Species.AssayTime
+            double trip = (s.AssayOfficeSeconds + s.ExitTownSeconds + 2 * t.WalkSeconds(store, p) + s.SampleSeconds + s.EnterTownSeconds) / me.Species.AssayDivisor
                 + TownTrip(game, t, store);
             if (trip > t.TimeLeft - 1) continue;
             _plan.Enqueue(new Assay(p.Index));
