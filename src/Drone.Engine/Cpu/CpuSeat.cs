@@ -309,20 +309,27 @@ public sealed class CpuSeat : ISeat
         }
         else if (a.Good is Good.Food or Good.Energy)
         {
-            int extra = a.Good == Good.Energy ? game.Settings.Auction.EnergyLineExtra : 0;
-            if (held > line + extra)
+            // Energy: enough for the drones it has plus the 1 or 2 it plans to add next turn.
+            int want = a.Good == Good.Energy
+                ? game.EnergyNeed(me) + (int)Math.Ceiling(game.CpuRng.Pick(c.EnergyPlanDrones) * game.Settings.Production.EnergyPerDrone)
+                : line;
+            if (held > want)
             {
                 plan.Side = Side.Sell;
-                plan.Units = held - line - extra;
+                plan.Units = held - want;
                 plan.Limit = Math.Max(a.Bottom, (int)Math.Round(a.StartPrice * (1 - c.SellerMinUnder)));
             }
             else
             {
                 plan.Side = Side.Buy;
-                plan.Units = line + extra - held;
+                plan.Units = want - held;
+                // Sometimes it buys the store out, to keep energy from the others.
+                if (a.Good == Good.Energy && game.CpuRng.Chance(c.EnergyCornerChance)) plan.Units += game.Store.Stock[(int)Good.Energy];
                 int budget = me.Cash - game.DronePriceFor(me) - c.GoodsReserveExtra;
                 if (a.Good == Good.Food && held == 0) budget = me.Cash;
                 int limit = (int)Math.Round(a.StartPrice * (1 + c.BuyerMaxOver));
+                // What it needs is worth the store's price when the store has stock.
+                if (a.StoreSells(game)) limit = Math.Max(limit, a.Top);
                 plan.Limit = Math.Min(limit, Math.Max(0, budget));
                 if (plan.Limit < a.Bottom) plan.Units = 0;
             }

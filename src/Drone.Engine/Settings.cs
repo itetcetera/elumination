@@ -474,6 +474,10 @@ public sealed class CpuSettings
     public required double MinJobSeconds { get; init; }
     public required double MinAssaySeconds { get; init; }
     public required int MinJobGain { get; init; }
+    /// <summary>Energy auction: a CPU buys for its drones plus one of these many new drones (picked at
+    /// random), and with CornerChance also buys out whatever energy the store has left.</summary>
+    public required int[] EnergyPlanDrones { get; init; }
+    public required double EnergyCornerChance { get; init; }
     /// <summary>Dollars a CPU knocks off a plot's draft value per hex from town.</summary>
     public required double DraftDistanceCost { get; init; }
     /// <summary>Unit value bonuses when short of food or energy.</summary>
