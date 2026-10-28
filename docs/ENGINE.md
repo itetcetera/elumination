@@ -128,3 +128,30 @@ From 1,000 games at each length:
   This is the "crystite grab" the design doc wants to avoid; spoilage and price bands are the
   knobs.
 - Catch-up holds at 12 and 18 rounds (the half-time leader wins 42-49%) but weakens at 24 (61%).
+
+## The x2 scale (variant `x2`)
+
+`settings/variants/x2.json` doubles every amount of goods and money: production, needs, stocks,
+event amounts, cash, land and drone prices, scores. Unit prices stay the same (twice the money for
+twice the goods). Auctions still trade one unit at a time, twice as fast, so they last about as
+long. The point is room for finer species costs and benefits in whole amounts (for example the
+Sprinter's +1 food is now half of what it was).
+
+1,000 games each, same seeds, 2026-10-28:
+
+| | Default | x2 | x2 / 2 |
+| --- | ---: | ---: | ---: |
+| Colony, 12 rounds | 89,677 | 175,509 | 87,755 |
+| Lead changes, 12 rounds | 3.95 | 3.95 | |
+| Half-time leader wins, 12 rounds | 41.0% | 43.5% | |
+| Exports' share, 12 rounds | 45.7% | 43.2% | |
+| Colony, 24 rounds | 473,521 | 930,846 | 465,423 |
+| Exports' share, 24 rounds | 79.9% | 78.3% | |
+
+The game keeps its shape, about 2% smaller. Players starve a little more often (4.2 turns a game
+against 2.9) because "below 30% of the food need" now catches 1 food of 6, which used to round to
+nothing.
+
+First finer species try under x2 (2,000 games each): the Sprinter at +2 food (the same cost as
+today) wins 21% at 12 rounds and 28% at 24; at +1 food it wins 23% and 28%. Half the food cost
+helps it in short games and changes little in long ones, where its speed already pays.
