@@ -476,6 +476,8 @@ public sealed class CpuSettings
     public required double MinJobSeconds { get; init; }
     public required double MinAssaySeconds { get; init; }
     public required int MinJobGain { get; init; }
+    /// <summary>When above 0, a job must instead add this many dollars a round.</summary>
+    public required int MinJobValue { get; init; }
     /// <summary>Energy auction: a CPU buys for its drones plus one of these many new drones (picked at
     /// random), and with CornerChance also buys out whatever energy the store has left.</summary>
     public required int[] EnergyPlanDrones { get; init; }

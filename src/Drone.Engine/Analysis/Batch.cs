@@ -58,6 +58,9 @@ public sealed record Report
     public required double PlayerTotal { get; init; }
     public required double PlayerPlots { get; init; }
     public required double PlayerDrones { get; init; }
+    public required double PlayerMoney { get; init; }
+    public required double PlayerLand { get; init; }
+    public required double PlayerGoods { get; init; }
 
     public sealed record SpeciesRow(int Played, double WinRate, double WinRateLow, double WinRateHigh, double AvgRank, double AvgTotal);
 
@@ -106,6 +109,9 @@ public sealed record Report
             PlayerTotal = players.Average(p => (double)p.Total),
             PlayerPlots = players.Average(p => (double)p.Plots),
             PlayerDrones = players.Average(p => (double)p.Drones),
+            PlayerMoney = players.Average(p => (double)p.Money),
+            PlayerLand = players.Average(p => (double)p.Land),
+            PlayerGoods = players.Average(p => (double)p.GoodsValue),
         };
     }
 
@@ -130,7 +136,7 @@ public sealed record Report
         w.WriteLine($"  tension: lead changes {LeadChanges:0.00}, final margin {Pct(Margin)}");
         w.WriteLine($"  catch-up: half-time leader wins {Pct(MidLeaderWins)}, half-time last climbs {Pct(MidLastClimbs)}");
         w.WriteLine($"  winner's wealth from exports {Pct(WinnerExportShare)}");
-        w.WriteLine($"  per player: plots {PlayerPlots:0.0}, drones {PlayerDrones:0.0}");
+        w.WriteLine($"  per player: plots {PlayerPlots:0.0}, drones {PlayerDrones:0.0}; money {PlayerMoney:0}, land {PlayerLand:0}, goods {PlayerGoods:0}");
         w.WriteLine($"  land: store plots sold {StorePlotsSold:0.0} (avg ${AvgLandPrice:0}), unsold {StorePlotsUnsold:0.0}, free at end {FreePlotsAtEnd:0.0}, bought plots idle 2+ rounds {Pct(AuctionPlotsIdle)}");
         w.WriteLine($"  store out of drones {RoundsStoreOutOfDrones:0.0} rounds; starving turns {StarvingTurns:0.0}; energy-short plots {ShortageStops:0.0}; auctions skipped {AuctionsSkipped:0.0}");
         w.WriteLine($"  Glimmer: hunts {GlimmerHunts:0.0} a game, caught {Pct(GlimmerCatchRate)} of hunts");

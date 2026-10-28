@@ -199,7 +199,7 @@ public sealed class CpuSeat : ISeat
             if (plot.Drone != null && job.IsMined())
                 value -= value * (1 - 1.0 / game.Settings.Production.MiningSwitchDivisor) / Math.Max(1, game.Rounds - game.Round + 1);
             double gainUnits = (value - current) / Math.Max(1, UnitValue(game, me, job));
-            if (gainUnits < c.MinJobGain) continue;
+            if (c.MinJobValue > 0 ? value - current < c.MinJobValue : gainUnits < c.MinJobGain) continue;
             int outfit = game.Settings.Goods.Of(job).OutfitCost;
             var town = game.Map.NearestTown(plot);
             double time;

@@ -216,6 +216,7 @@
     "minJobSeconds": 16.3,
     "minAssaySeconds": 10.3,
     "minJobGain": 4,
+    "minJobValue": 0,
     "energyPlanDrones": [1, 2],
     "energyCornerChance": 0.15,
     "draftDistanceCost": 10,
