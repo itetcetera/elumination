@@ -148,9 +148,11 @@ Sprinter's +1 food is now half of what it was).
 | Colony, 24 rounds | 473,521 | 930,846 | 465,423 |
 | Exports' share, 24 rounds | 79.9% | 78.3% | |
 
-The game keeps its shape, about 2% smaller. Players starve a little more often (4.2 turns a game
-against 2.9) because "below 30% of the food need" now catches 1 food of 6, which used to round to
-nothing. The care package fires below `careBelowFood` (1 today, 2 at x2), so a player at 1 of 6 still gets it.
+The game keeps its shape, about 2% smaller. A starving turn means no food at all (Marcus,
+2026-10-28); the floor still gives about 18 seconds, for food drones only. With that, starving
+turns match too (2.3 a game today, 2.5 at x2). The care package still needs exactly 0 food.
+
+The turn is 50 seconds (Marcus, 2026-10-28; the original's 47.13 stays in the `original` variant).
 
 First finer species try under x2 (2,000 games each): the Sprinter at +2 food (the same cost as
 today) wins 21% at 12 rounds and 28% at 24; at +1 food it wins 23% and 28%. Half the food cost

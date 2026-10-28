@@ -4,7 +4,7 @@
   "game": { "helionEnabled": false, "speciesEnabled": false },
   "goods": { "crystite": { "spoilage": 0 } },
   "land": { "skipAfterUnsold": 99, "bidStepThresholds": [0], "bidSteps": [4] },
-  "turn": { "foodFloor": 0 },
+  "turn": { "seconds": 47.13, "foodFloor": 0 },
   "production": { "bankFoodBonus": 0, "learningCap": 1, "maxOutput": 8 },
   "roundEvents": { "cards": { "iceRaiders": 0, "comet": 0, "supplyShip": 0, "malfunction": 0 } }
 }

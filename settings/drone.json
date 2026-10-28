@@ -78,7 +78,7 @@
     "sealedSeconds": 15
   },
   "turn": {
-    "seconds": 47.13,
+    "seconds": 50,
     "foodScaledShare": 0.901,
     "foodFloor": 0.3,
     "walkPlainSeconds": 0.93,

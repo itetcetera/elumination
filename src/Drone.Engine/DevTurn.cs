@@ -74,7 +74,8 @@ public sealed class DevTurn
         int need = game.FoodNeed(p);
         int food = p.Held[(int)Good.Food];
         double share = need <= 0 || food >= need ? 1.0 : (double)food / need;
-        bool starving = share < t.FoodFloor;
+        // Starving means no food at all; the floor still gives some time, for food drones only (F3).
+        bool starving = food == 0 && need > 0;
         share = Math.Max(share, t.FoodFloor);
         double seconds = t.Seconds * (1 - t.FoodScaledShare + t.FoodScaledShare * share);
         var turn = new DevTurn
