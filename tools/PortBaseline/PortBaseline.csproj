@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Plays the faithful port (itetcetera/crispy-fiesta) headless with four original CPUs and
+       writes the same balance report as drone-sim. Not part of Drone.sln: it needs a checkout of
+       the port next to this repo (or PortRoot set to one). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PortRoot Condition="'$(PortRoot)' == ''">$(MSBuildThisFileDirectory)../../../crispy-fiesta</PortRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(PortRoot)/server/Mule.Engine/Mule.Engine.csproj" />
+    <ProjectReference Include="../../src/Drone.Engine/Drone.Engine.csproj" />
+  </ItemGroup>
+</Project>

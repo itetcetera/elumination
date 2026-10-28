@@ -1,0 +1,10 @@
+// The original M.U.L.E. tournament rules, as close as the hex engine can play them: one export,
+// no species, the original caps and auction rules. Used as the baseline against the faithful port.
+{
+  "game": { "helionEnabled": false, "speciesEnabled": false },
+  "goods": { "crystite": { "spoilage": 0 } },
+  "land": { "skipAfterUnsold": 99, "bidStepThresholds": [0], "bidSteps": [4] },
+  "turn": { "foodFloor": 0 },
+  "production": { "bankFoodBonus": 0, "learningCap": 1, "maxOutput": 8 },
+  "roundEvents": { "cards": { "iceRaiders": 0, "comet": 0, "supplyShip": 0, "malfunction": 0 } }
+}

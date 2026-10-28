@@ -1,0 +1,125 @@
+# The DRONE engine
+
+## How a game runs
+
+`Game.Run()` is the whole game as a coroutine. Each value it yields is a number of ticks to let pass
+(60 ticks a second, `game.ticksPerSecond`). The round follows the original order (C1):
+
+1. Land draft (`LandGrant`), if any plot is free
+2. Player land sales, then the store's land auction (`LandAuction`)
+3. Development turns, one player at a time (`DevTurn`)
+4. Production (`Production`), then the round event (`RoundEvents`), except in the last round
+5. Prices (`Prices.BeforeAuctions`), then one live auction per good (`GoodsAuction`)
+6. The store builds drones (`Prices.BuildDrones`), then scoring and ranking (`Scoring`)
+
+Every decision goes through a seat (`ISeat`). Each call happens on the game clock; a seat that
+returns `null` (a human who hasn't decided yet) lets a tick pass and is asked again until that
+phase's clock runs out. `CpuSeat` answers at once, which is why a headless game takes milliseconds.
+A live server would implement `ISeat` with each player's latest input, run `Game.Run()` in real time,
+and send `game.Phase` and `game.Events` to the clients. The port's rooms, SignalR hub and Docker
+image can carry that over unchanged; that's the next step after the balance work.
+
+All randomness comes from the game's seeded generator (`Rng`, xoshiro256**), so a seed replays a
+game exactly. CPU thinking draws from its own stream (`CpuRng`), so changing the CPU never moves
+the world's dice.
+
+## Development turns
+
+A turn is a time budget (F3: scaled by food, never below the food floor). Commands cost time:
+walking costs per hex by terrain (mountains and water are slower), town visits cost fixed time, and
+the turn ends at the pub, when the player ends it, or when time runs out (a led drone is then lost,
+F5). The CPU sends whole errands (`WalkTo` a plot); a human client would send one hex at a time,
+so the same rules cover both.
+
+The Glimmer (shows and hides on mountains) and the drifting supply crate (crosses one row, one hex
+every few seconds) are timed within the turn; catching either means standing on its plot at the
+right moment.
+
+## Auctions
+
+Land: bidders climb a price scale in steps that grow with the price (E8); the clock runs slow while
+anyone moves and fast while nobody does; first to a price holds it; the winner pays their bid. A
+player sale's seller moves the start price. The sealed mode (host option) pays the second-highest
+bid, with the start price as the minimum.
+
+Goods: each player's place on the scale is a price. Buyers start below the bottom, sellers above
+the top. When the best buyer is at or above the best seller, units change hands one at a time at
+the seller's price, quicker as the trade runs. The store sells at the top while it has stock (not
+exports) and buys at the bottom. Food and energy sellers stop at their need line unless they push
+on below it (I12). The clock stops while units move.
+
+## The CPU
+
+`CpuSeat` values each job on each plot as expected output (terrain, scale, learning curve; exports
+from what assays have proved) times what a unit is worth to it (the store price, plus a bonus when
+it's short of food or energy, less the energy the drone will burn). It drafts its best plots, bids
+up to a plot's worth (its 500 score value plus some of its output over the rounds left) while
+keeping cash back, does the best jobs its time allows, assays, catches the crate when that beats
+the pub, then gambles. In auctions it sells ore and exports, sells food and energy surpluses, buys
+what it's short of, and moves toward its limit price as the clock runs. All its numbers are under
+`cpu` in the settings.
+
+It doesn't sell land and doesn't hunt the Glimmer yet. It is a baseline, not a strong player:
+balance results are only as good as the CPU, so treat early species numbers as a first read.
+
+## Simulations
+
+`drone-sim run` plays N games in parallel and prints the report: winner and colony totals, colony
+ratings, tension (lead changes, final margin), catch-up (how often the half-time leader wins, how
+often half-time last place climbs), the share of the winner's wealth from exports, land and store
+health, and win rates by species with 95% intervals. `--json` writes every game for deeper looks.
+`drone-sim sweep` runs the same seeds for each value of one setting, so the differences come from
+the setting, not the dice.
+
+## Comparing with the original
+
+`settings/variants/original.json` plays the original rules as closely as a hex map allows: one
+export, no species, the original caps, learning curve, auction steps and events. `tools/PortBaseline`
+plays the faithful port with its original CPUs. 1,000 games each, 12 rounds, 2026-10-28:
+
+| | Port (original CPU) | DRONE engine, original variant (new CPU) |
+| --- | ---: | ---: |
+| Winner's total | 26,459 | 24,473 |
+| Colony total | 86,899 | 78,141 |
+| Lead changes | 3.78 | 3.55 |
+| Final margin | 12.6% | 15.2% |
+| Half-time leader wins | 50.0% | 49.1% |
+| Half-time last place climbs | 51.9% | 51.0% |
+| Winner's wealth from exports | 39.0% | 35.0% |
+| Plots / drones per player | 11.0 / 10.9 | 11.0 / 10.2 |
+| Store land price paid | $715 | $797 |
+| Final food / energy price | 122 / 86 | 89 / 29 |
+
+The shape of the game matches: the same tension and catch-up, about the same share from crystite,
+the same land use. The new CPU makes about 10% less: it leaves some energy short (about 14 plots a
+game stop) and pays a little more for land. Those are CPU tuning items, not rule differences.
+
+## Assumptions made where the design doc left room
+
+These are starting points in the settings, to confirm or change:
+
+- Map sizes 9x5 / 9x7 / 13x7 by game length; Helion seeds 2 / 3 / 4; lakes 0 / 2 / 3; outposts
+  0 / 1 / 2 on the river above and below the store; river-bank food bonus +1.
+- Walking costs per hex (plain 0.93 s, mountain 1.6 s, water 1.3 s) and town visit times are set so
+  a job costs about what the original CPU's time model charged (25 + 4 x distance time pixels).
+- Species: Sprinter walks 1.25x and needs 1 more food; Broker moves 1.33x faster in auctions and
+  starts with $200 less; Prospector assays in half the time and its food drones make 85%; Engineer's
+  drones use 75% energy and cost 15% more; Survivor takes half of bad events and gets 60% of good
+  ones; Settler drafts first ("wins ties" read as first pick) and pays 10% more for land.
+- Export spoilage: crystite 20%, Helion 10% a round; Helion price 80-120 (crystite 50-149).
+- New events per 11 rounds: Ice raiders 1 (take half of held Helion), Comet 2, Supply ship 2
+  (+8 food, +8 energy to the store), Drone malfunction 2.
+- Learning curve cap 2 and output cap 10 (original 1 and 8).
+- Colony verdict thresholds scale with plots and with game length.
+- Quick sale pays half the store's land price, plus the drone price for a drone on the plot.
+
+## First balance read (CPU games, default settings)
+
+From 1,000 games at each length:
+
+- Species are not balanced yet. The Settler wins 41% (12 rounds) to 56% (24 rounds); the Sprinter
+  13-17%. First pick in the draft is worth much more than a 10% land surcharge.
+- Exports take over in longer games: 46% of the winner's wealth at 12 rounds, 69% at 18, 79% at 24.
+  This is the "crystite grab" the design doc wants to avoid; spoilage and price bands are the
+  knobs.
+- Catch-up holds at 12 and 18 rounds (the half-time leader wins 42-49%) but weakens at 24 (61%).

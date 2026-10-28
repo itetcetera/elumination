@@ -1,0 +1,95 @@
+namespace Drone.Engine;
+
+/// <summary>
+/// Production after the development turns (section G): terrain output, economies of scale, the
+/// learning curve from neighbouring plots, a luck roll, then the energy shortage. Round events can
+/// still change it before <see cref="Commit"/> hands it to the players.
+/// </summary>
+public sealed class Production
+{
+    public required Game Game { get; init; }
+    /// <summary>This round's output per plot index (0 for plots without a drone).</summary>
+    public required int[] Output { get; init; }
+
+    /// <summary>A plot's base output for a job, or null when the job can't go there.</summary>
+    public static int? Base(Settings s, Plot plot, Good good)
+    {
+        var p = s.Production;
+        if (plot.IsTown) return null;
+        if (good.IsMined() && plot.IsWater) return null;
+        if (good == Good.Helion && !s.Game.HelionEnabled) return null;
+        if (good.IsExport()) return Math.Max(0, plot.Deposit(good));
+        int i = (int)good;
+        return plot.Terrain switch
+        {
+            Terrain.Mountain => good == Good.Ore ? plot.OreUnits + p.MountainOreBase : p.Mountain[i],
+            Terrain.River or Terrain.Lake => p.Water[i],
+            _ => p.Plain[i] + (good == Good.Food && plot.Bank ? p.BankFoodBonus : 0),
+        };
+    }
+
+    /// <summary>Output before luck, for a drone of a job on a plot of an owner. <paramref name="extra"/>
+    /// counts drones not yet installed (the CPU's what-if).</summary>
+    public static int Expected(Game game, Player owner, Plot plot, Good good, int extra = 0)
+    {
+        var s = game.Settings;
+        if (Base(s, plot, good) is not int b) return 0;
+        int same = game.PlotsOf(owner).Count(x => x.Drone == good && x != plot) + 1 + extra;
+        int scale = same / s.Production.ScaleStep;
+        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == good));
+        int v = b + scale + learn;
+        v = Math.Clamp(v, 0, s.Production.MaxOutput);
+        return good == Good.Food ? (int)Math.Round(v * owner.Species.FoodOutput) : v;
+    }
+
+    public static Production Run(Game game)
+    {
+        var s = game.Settings;
+        var output = new int[game.Map.Plots.Length];
+        foreach (var plot in game.Map.Plots)
+        {
+            if (plot.Owner < 0 || plot.Drone is not { } job) continue;
+            if (Base(s, plot, job) is not int b) continue;
+            var owner = game.Players[plot.Owner];
+            int same = game.PlotsOf(owner).Count(x => x.Drone == job);
+            int v = b + same / s.Production.ScaleStep
+                + Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == job))
+                + game.Rng.RoundNormal(s.Production.LuckSpread);
+            v = Math.Clamp(v, 0, s.Production.MaxOutput);
+            if (job == Good.Food) v = (int)Math.Round(v * owner.Species.FoodOutput);
+            output[plot.Index] = v;
+        }
+        var prod = new Production { Game = game, Output = output };
+
+        // G5: each missing energy unit stops one producing non-energy plot, picked fairly (L2).
+        foreach (var p in game.Players)
+        {
+            int missing = game.EnergyNeed(p) - p.Held[(int)Good.Energy];
+            int stopped = 0;
+            for (int i = 0; i < missing; i++)
+            {
+                var producing = game.PlotsOf(p).Where(x => x.Drone is { } d && d != Good.Energy && output[x.Index] > 0).ToList();
+                if (producing.Count == 0) break;
+                output[game.Rng.Pick(producing).Index] = 0;
+                stopped++;
+            }
+            prod.Shortage[p.Seat] = stopped;
+        }
+        return prod;
+    }
+
+    public int[] Shortage { get; } = new int[8];
+    /// <summary>Plots making another good this round (the Drone malfunction event).</summary>
+    public Dictionary<int, Good> JobOverride { get; } = [];
+
+    /// <summary>Hands the output to the players (added to their stock before each auction).</summary>
+    public void Commit()
+    {
+        foreach (var p in Game.Players) Array.Clear(p.Produced);
+        foreach (var plot in Game.Map.Plots)
+            if (plot.Owner >= 0 && plot.Drone is { } job)
+                Game.Players[plot.Owner].Produced[(int)JobOverride.GetValueOrDefault(plot.Index, job)] += Output[plot.Index];
+        foreach (var p in Game.Players)
+            Game.Emit(new ProductionEvent(Game.Round, p.Seat, (int[])p.Produced.Clone(), Shortage[p.Seat]));
+    }
+}

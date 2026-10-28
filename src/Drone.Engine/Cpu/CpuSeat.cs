@@ -1,0 +1,370 @@
+namespace Drone.Engine.Cpu;
+
+/// <summary>
+/// DRONE's computer player (K1), written fresh for DRONE's rules. It also plays every balance
+/// simulation, so it aims to be a solid, readable baseline rather than a clever one: it values each
+/// job on each plot by expected output times what a unit is worth to it, buys land below that
+/// worth, keeps itself fed and powered, and trades toward a limit price as the auction clock runs.
+/// Every number it uses lives in the "cpu" block of the settings.
+/// </summary>
+public sealed class CpuSeat : ISeat
+{
+    // ---------- What things are worth to this player ----------
+
+    /// <summary>What one unit of a good is worth to the player this round, with bonuses when short.</summary>
+    public static double UnitValue(Game game, Player me, Good good)
+    {
+        var s = game.Settings;
+        double price = good.IsExport()
+            ? (s.Goods.Of(good).RandomMin + s.Goods.Of(good).RandomMax) / 2.0
+            : game.Store.Price[(int)good];
+        if (game.Round <= 1 && !good.IsExport()) price = s.Goods.Of(good).StartPrice;
+        var c = s.Cpu;
+        if (good == Good.Food)
+        {
+            int prod = ProducedEstimate(game, me, Good.Food);
+            if (me.Held[(int)Good.Food] + prod < game.FoodNeed(me, Math.Min(game.Round + 1, game.Rounds))) price += c.ShortBonus;
+            else if (prod == 0) price += c.NoneYetBonus;
+        }
+        else if (good == Good.Energy)
+        {
+            int prod = ProducedEstimate(game, me, Good.Energy);
+            if (me.Held[(int)Good.Energy] + prod < game.EnergyNeed(me) + 1) price += c.ShortBonus;
+            else if (prod == 0) price += c.NoneYetBonus;
+        }
+        return price;
+    }
+
+    static int ProducedEstimate(Game game, Player me, Good good)
+        => game.PlotsOf(me).Where(p => p.Drone == good).Sum(p => Expected(game, me, p, good));
+
+    /// <summary>The deposit level the player can count on: the true level once assayed (results are
+    /// public, F9), otherwise what nearby assays prove (a seed drops 1 per hex).</summary>
+    public static int KnownDeposit(Game game, Plot plot, Good good)
+    {
+        if (plot.Deposit(good) < 0) return 0;
+        if (plot.Assayed) return plot.Deposit(good);
+        int best = 0;
+        foreach (var q in game.Map.Plots)
+            if (q.Assayed && q.Deposit(good) > 0)
+                best = Math.Max(best, q.Deposit(good) - game.Map.Distance(plot, q));
+        return best;
+    }
+
+    /// <summary>Expected output of a job on a plot (no luck), using known deposits only.</summary>
+    public static int Expected(Game game, Player me, Plot plot, Good good, bool adding = false)
+    {
+        var s = game.Settings;
+        int? b = Production.Base(s, plot, good);
+        if (b == null) return 0;
+        if (good.IsExport()) b = KnownDeposit(game, plot, good);
+        if (good.IsExport() && b == 0) return 0;
+        int same = game.PlotsOf(me).Count(x => x.Drone == good && x != plot) + 1;
+        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == me.Seat && n.Drone == good));
+        int v = Math.Clamp(b.Value + same / s.Production.ScaleStep + learn, 0, s.Production.MaxOutput);
+        return good == Good.Food ? (int)Math.Round(v * me.Species.FoodOutput) : v;
+    }
+
+    /// <summary>The best job for a plot and its value per round.</summary>
+    public static (Good Good, double Value) BestJob(Game game, Player me, Plot plot, bool foodOnly = false)
+    {
+        var best = (Good: Good.Food, Value: 0.0);
+        foreach (var g in Engine.Goods.All)
+        {
+            if (foodOnly && g != Good.Food) continue;
+            if (g == Good.Helion && !game.Settings.Game.HelionEnabled) continue;
+            if (Production.Base(game.Settings, plot, g) == null) continue;
+            double v = Expected(game, me, plot, g) * UnitValue(game, me, g) - EnergyCost(game, me, g);
+            if (v > best.Value) best = (g, v);
+        }
+        return best;
+    }
+
+    /// <summary>What running a drone of this job costs in energy each round.</summary>
+    public static double EnergyCost(Game game, Player me, Good job)
+        => job == Good.Energy ? 0 : game.Settings.Production.EnergyPerDrone * me.Species.DroneEnergyUse * UnitValue(game, me, Good.Energy);
+
+    // ---------- Land draft ----------
+
+    public IReadOnlyList<int>? Draft(Game game, Player me)
+    {
+        double pen = game.Settings.Cpu.DistancePenalty;
+        return game.Map.FreePlots
+            .Select(p => (p, score: BestJob(game, me, p).Value - pen * 5 * game.Map.TownDistance(p) + game.CpuRng.NextDouble()))
+            .OrderByDescending(x => x.score)
+            .Take(game.Players.Count)
+            .Select(x => x.p.Index)
+            .ToList();
+    }
+
+    // ---------- Land auctions ----------
+
+    readonly Dictionary<LandAuction, int> _budgets = [];
+
+    /// <summary>What a plot is worth to the player: its score value plus what it will make in the
+    /// rounds left, less cash the player keeps back.</summary>
+    public int LandBudget(Game game, Player me, LandAuction a)
+    {
+        if (_budgets.TryGetValue(a, out int b)) return b;
+        var c = game.Settings.Cpu;
+        int roundsLeft = game.Rounds - game.Round + 1;
+        double worth = game.Settings.Scoring.PlotValue + BestJob(game, me, a.Plot).Value * roundsLeft * c.LandHorizonShare;
+        int reserve = c.LandReserve + game.CpuRng.Next(Math.Max(1, c.LandReserveRandom));
+        // No free money to develop it: a plot without a drone only scores its flat value.
+        if (me.Cash - reserve < game.DronePriceFor(me)) worth = Math.Min(worth, game.Settings.Scoring.PlotValue * 0.8);
+        b = (int)Math.Min(LandAuction.MaxBid(me) - reserve / 2, worth);
+        _budgets[a] = b;
+        return b;
+    }
+
+    public Move LandBid(Game game, Player me, LandAuction a)
+    {
+        int budget = LandBudget(game, me, a);
+        if (a.HighBidder == me.Seat) return Move.Hold;
+        int pos = a.Position[me.Seat];
+        int target = Math.Max(a.StartPrice, a.HighBid + 1);
+        if (target > budget) return pos > a.Bottom(game.Settings) && pos > budget ? Move.Down : Move.Hold;
+        int next = Math.Max(pos, a.Bottom(game.Settings)) + LandAuction.Step(game.Settings, Math.Max(pos, a.StartPrice));
+        return next <= budget || pos < a.StartPrice ? Move.Up : Move.Hold;
+    }
+
+    public Move LandSell(Game game, Player me, LandAuction a) => Move.Hold;
+
+    public int? SealedBid(Game game, Player me, LandAuction a)
+    {
+        int budget = LandBudget(game, me, a);
+        return budget >= a.StartPrice ? budget : 0;
+    }
+
+    // ---------- Development turn ----------
+
+    DevTurn? _turn;
+    readonly Queue<TurnCommand> _plan = new();
+    readonly HashSet<int> _tried = [];
+    int _commands;
+    int _crateTarget = -1;
+
+    public TurnCommand? Turn(Game game, Player me, DevTurn t)
+    {
+        if (_turn != t)
+        {
+            _turn = t;
+            _plan.Clear();
+            _tried.Clear();
+            _commands = 0;
+            _crateTarget = -1;
+        }
+        else if (t.Message != null)
+        {
+            // The last step failed: drop the plan.
+            _plan.Clear();
+        }
+        if (++_commands > 80) return new EndTurn();
+        if (_plan.Count > 0) return _plan.Dequeue();
+        if (t.Leading) return t.InTown ? new SellDrone() : new ReleaseDrone();
+        if (PlanJob(game, me, t)) return _plan.Dequeue();
+        if (PlanAssay(game, me, t)) return _plan.Dequeue();
+        if (PlanCrate(game, me, t)) return _plan.Dequeue();
+        return new Pub();
+    }
+
+    double TownTrip(Game game, DevTurn t, Plot town)
+    {
+        var s = game.Settings.Turn;
+        return t.InTown && t.Location == town ? 0 : (t.InTown ? s.ExitTownSeconds : 0) + t.WalkSeconds(t.Location, town) + s.EnterTownSeconds;
+    }
+
+    bool PlanJob(Game game, Player me, DevTurn t)
+    {
+        var c = game.Settings.Cpu;
+        var s = game.Settings.Turn;
+        if (t.TimeLeft < c.MinJobSeconds) return false;
+        int dronePrice = game.DronePriceFor(me);
+        (Plot plot, Good job, double gain, double time, bool empty)? best = null;
+        foreach (var plot in game.PlotsOf(me))
+        {
+            if (_tried.Contains(plot.Index)) continue;
+            var (job, value) = BestJob(game, me, plot, t.Starving);
+            double current = plot.Drone is { } d ? Expected(game, me, plot, d) * UnitValue(game, me, d) - EnergyCost(game, me, d) : 0;
+            if (plot.Drone == job) continue;
+            double gainUnits = (value - current) / Math.Max(1, UnitValue(game, me, job));
+            if (gainUnits < c.MinJobGain) continue;
+            int outfit = game.Settings.Goods.Of(job).OutfitCost;
+            var town = game.Map.NearestTown(plot);
+            double time;
+            bool empty = plot.Drone == null;
+            if (empty)
+            {
+                if (game.Store.Drones <= 0 || me.Cash < dronePrice + outfit) continue;
+                time = TownTrip(game, t, town) + s.CorralSeconds + s.OutfitSeconds + s.ExitTownSeconds + t.WalkSeconds(town, plot) + s.InstallSeconds;
+            }
+            else
+            {
+                if (me.Cash < outfit) continue;
+                time = (t.InTown ? s.ExitTownSeconds : 0) + t.WalkSeconds(t.Location, plot) + s.InstallSeconds
+                    + t.WalkSeconds(plot, town) + s.EnterTownSeconds + s.OutfitSeconds + s.ExitTownSeconds + t.WalkSeconds(town, plot) + s.InstallSeconds;
+            }
+            if (time > t.TimeLeft - 0.5) continue;
+            double gain = value - current;
+            if (best == null || gain > best.Value.gain) best = (plot, job, gain, time, empty);
+        }
+        if (best is not { } b) return false;
+        _tried.Add(b.plot.Index);
+        var nearest = game.Map.NearestTown(b.plot);
+        if (b.empty)
+        {
+            _plan.Enqueue(new GoToTown(nearest.Index));
+            _plan.Enqueue(new BuyDrone());
+        }
+        else
+        {
+            _plan.Enqueue(new WalkTo(b.plot.Index));
+            _plan.Enqueue(new PressButton());
+            _plan.Enqueue(new GoToTown(nearest.Index));
+        }
+        _plan.Enqueue(new OutfitDrone(b.job));
+        _plan.Enqueue(new WalkTo(b.plot.Index));
+        _plan.Enqueue(new PressButton());
+        return true;
+    }
+
+    bool PlanAssay(Game game, Player me, DevTurn t)
+    {
+        var c = game.Settings.Cpu;
+        if (t.TimeLeft < c.MinAssaySeconds || t.Leading) return false;
+        int high = game.Map.Plots.Count(p => p.Assayed && (p.Crystite >= 3 || p.Helion >= 3) && (p.Owner == me.Seat || p.Free));
+        if (high >= c.AssayStopAtHigh) return false;
+        var s = game.Settings.Turn;
+        var store = game.Map.Store;
+        var options = game.Map.Plots
+            .Where(p => !p.Assayed && !p.IsWater && !p.IsTown && (p.Owner == me.Seat || p.Free))
+            .Select(p => (p, est: Math.Max(KnownDeposit(game, p, Good.Crystite), KnownDeposit(game, p, Good.Helion)) + (p.Owner == me.Seat ? 0.5 : 0) + game.CpuRng.NextDouble() * 0.4))
+            .OrderByDescending(x => x.est)
+            .ToList();
+        foreach (var (p, _) in options)
+        {
+            double trip = (s.AssayOfficeSeconds + s.ExitTownSeconds + 2 * t.WalkSeconds(store, p) + s.SampleSeconds + s.EnterTownSeconds) * me.Species.AssayTime
+                + TownTrip(game, t, store);
+            if (trip > t.TimeLeft - 1) continue;
+            _plan.Enqueue(new Assay(p.Index));
+            return true;
+        }
+        return false;
+    }
+
+    bool PlanCrate(Game game, Player me, DevTurn t)
+    {
+        if (!game.Settings.Cpu.HuntSideRewards || t.Leading || t.Crate.Caught || _crateTarget >= 0) return false;
+        var crate = t.Crate;
+        double value = crate.Cash ? crate.Amount : crate.Amount * UnitValue(game, me, crate.Good);
+        var s = game.Settings.Turn;
+        var store = game.Map.Store;
+        foreach (var plot in game.Map.Plots.Where(p => p.Row == crate.Row && !p.IsTown))
+        {
+            if (crate.WhenOver(game.Map, plot) is not { } w) continue;
+            double arrive = t.Elapsed + t.SecondsTo(plot);
+            if (arrive >= w.To - 0.05) continue;
+            double waitUntil = Math.Max(arrive, w.From) + 0.02;
+            double afterCatch = t.Seconds - waitUntil - t.WalkSeconds(plot, store) - s.EnterTownSeconds - s.PubSeconds;
+            if (afterCatch < 0) continue;
+            double withCrate = value + DevTurn.ExpectedPub(game, afterCatch);
+            double pubNow = DevTurn.ExpectedPub(game, t.TimeLeft - TownTrip(game, t, store) - s.PubSeconds);
+            if (withCrate <= pubNow) continue;
+            _crateTarget = plot.Index;
+            _plan.Enqueue(new WalkTo(plot.Index));
+            double wait = waitUntil - arrive;
+            if (wait > 0) _plan.Enqueue(new Wait(wait));
+            _plan.Enqueue(new CatchCrate());
+            return true;
+        }
+        return false;
+    }
+
+    // ---------- Goods auctions ----------
+
+    sealed class GoodsPlan
+    {
+        public Side Side;
+        public int Units;
+        public int Limit;
+        public int Start;
+    }
+
+    readonly Dictionary<GoodsAuction, GoodsPlan> _goods = [];
+
+    GoodsPlan Plan(Game game, Player me, GoodsAuction a)
+    {
+        if (_goods.TryGetValue(a, out var plan)) return plan;
+        if (_goods.Count > 16) _goods.Clear();
+        var c = game.Settings.Cpu;
+        int held = me.Held[(int)a.Good];
+        int line = a.Line[me.Seat];
+        plan = new GoodsPlan();
+        if (game.LastRound)
+        {
+            // Held goods score at the current price: nothing left to gain by trading in the last round.
+            plan.Side = held > line ? Side.Sell : Side.Buy;
+            plan.Units = 0;
+        }
+        else if (a.Good is Good.Food or Good.Energy)
+        {
+            int extra = a.Good == Good.Energy ? 1 : 0;
+            if (held > line + extra)
+            {
+                plan.Side = Side.Sell;
+                plan.Units = held - line - extra;
+                plan.Limit = Math.Max(a.Bottom, (int)Math.Round(a.StartPrice * (1 - c.SellerMinUnder)));
+            }
+            else
+            {
+                plan.Side = Side.Buy;
+                plan.Units = line + extra - held;
+                int budget = me.Cash - game.DronePriceFor(me) - c.GoodsReserveExtra;
+                if (a.Good == Good.Food && held == 0) budget = me.Cash;
+                int limit = (int)Math.Round(a.StartPrice * (1 + c.BuyerMaxOver));
+                plan.Limit = Math.Min(limit, Math.Max(0, budget));
+                if (plan.Limit < a.Bottom) plan.Units = 0;
+            }
+        }
+        else
+        {
+            // Ore and exports have no use to a player: sell them all, the store buys at the bottom.
+            plan.Side = held > 0 ? Side.Sell : Side.Buy;
+            plan.Units = held;
+            plan.Limit = a.Bottom;
+        }
+        plan.Start = plan.Side == Side.Buy ? me.Held[(int)a.Good] : me.Held[(int)a.Good];
+        _goods[a] = plan;
+        return plan;
+    }
+
+    public Side? GoodsSide(Game game, Player me, GoodsAuction a) => Plan(game, me, a).Side;
+
+    public GoodsMove Goods(Game game, Player me, GoodsAuction a)
+    {
+        var plan = Plan(game, me, a);
+        var c = game.Settings.Cpu;
+        int pos = a.Pos[me.Seat];
+        int held = me.Held[(int)a.Good];
+        double progress = Math.Min(1.0, (1 - a.Timer) / Math.Max(0.01, c.ConcedeShare));
+        if (plan.Side == Side.Buy)
+        {
+            bool done = plan.Units <= 0 || held - plan.Start >= plan.Units;
+            if (done) return new GoodsMove(pos > a.OutBelow ? Move.Down : Move.Hold);
+            int target = a.Bottom + (int)Math.Round((plan.Limit - a.Bottom) * progress);
+            if (a.StoreSells(game)) target = Math.Min(target, a.Top);
+            if (pos < target) return new GoodsMove(Move.Up);
+            if (pos > plan.Limit) return new GoodsMove(Move.Down);
+            return GoodsMove.Hold;
+        }
+        else
+        {
+            bool done = plan.Units <= 0 || plan.Start - held >= plan.Units;
+            if (done) return new GoodsMove(pos < a.OutAbove ? Move.Up : Move.Hold);
+            int target = a.Top - (int)Math.Round((a.Top - plan.Limit) * progress);
+            if (pos > target) return new GoodsMove(Move.Down);
+            if (pos < plan.Limit) return new GoodsMove(Move.Up);
+            return GoodsMove.Hold;
+        }
+    }
+}
