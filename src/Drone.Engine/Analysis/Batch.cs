@@ -51,6 +51,8 @@ public sealed record Report
     public required double RoundsStoreOutOfDrones { get; init; }
     public required double StarvingTurns { get; init; }
     public required double ShortageStops { get; init; }
+    /// <summary>Share of plots bought at auction that waited 2+ rounds for a drone.</summary>
+    public required double AuctionPlotsIdle { get; init; }
     public required double PlayerTotal { get; init; }
     public required double PlayerPlots { get; init; }
     public required double PlayerDrones { get; init; }
@@ -96,6 +98,7 @@ public sealed record Report
             RoundsStoreOutOfDrones = games.Average(g => (double)g.RoundsStoreOutOfDrones),
             StarvingTurns = games.Average(g => (double)g.StarvingTurns),
             ShortageStops = games.Average(g => (double)g.ShortageStops),
+            AuctionPlotsIdle = games.Sum(g => g.AuctionPlots) == 0 ? 0 : games.Sum(g => (double)g.AuctionPlotsIdle) / games.Sum(g => g.AuctionPlots),
             PlayerTotal = players.Average(p => (double)p.Total),
             PlayerPlots = players.Average(p => (double)p.Plots),
             PlayerDrones = players.Average(p => (double)p.Drones),
@@ -124,7 +127,7 @@ public sealed record Report
         w.WriteLine($"  catch-up: half-time leader wins {Pct(MidLeaderWins)}, half-time last climbs {Pct(MidLastClimbs)}");
         w.WriteLine($"  winner's wealth from exports {Pct(WinnerExportShare)}");
         w.WriteLine($"  per player: plots {PlayerPlots:0.0}, drones {PlayerDrones:0.0}");
-        w.WriteLine($"  land: store plots sold {StorePlotsSold:0.0} (avg ${AvgLandPrice:0}), unsold {StorePlotsUnsold:0.0}, free at end {FreePlotsAtEnd:0.0}");
+        w.WriteLine($"  land: store plots sold {StorePlotsSold:0.0} (avg ${AvgLandPrice:0}), unsold {StorePlotsUnsold:0.0}, free at end {FreePlotsAtEnd:0.0}, bought plots idle 2+ rounds {Pct(AuctionPlotsIdle)}");
         w.WriteLine($"  store out of drones {RoundsStoreOutOfDrones:0.0} rounds; starving turns {StarvingTurns:0.0}; energy-short plots {ShortageStops:0.0}; auctions skipped {AuctionsSkipped:0.0}");
         w.WriteLine($"  final prices: {string.Join("  ", Engine.Goods.All.Select(g => $"{g} {MeanFinalPrice[(int)g]:0}"))}");
         if (Species.Count > 1)

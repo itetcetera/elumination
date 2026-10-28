@@ -483,9 +483,11 @@ public sealed class CpuSettings
     /// <summary>Unit value bonuses when short of food or energy.</summary>
     public required int ShortBonus { get; init; }
     public required int NoneYetBonus { get; init; }
-    /// <summary>Land: cash a CPU keeps (Reserve + random[0, ReserveRandom)).</summary>
+    /// <summary>Land: cash a CPU keeps after buying: a drone and outfit for the plot + Reserve +
+    /// random[0, ReserveRandom). With OverreachChance it keeps only half the random part.</summary>
     public required int LandReserve { get; init; }
     public required int LandReserveRandom { get; init; }
+    public required double LandOverreachChance { get; init; }
     /// <summary>Plot worth = value per round x rounds left x this.</summary>
     public required double LandHorizonShare { get; init; }
     /// <summary>Goods: cash kept back = drone price + this.</summary>

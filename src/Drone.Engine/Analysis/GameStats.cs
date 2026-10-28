@@ -28,6 +28,9 @@ public sealed record GameStats
     public required int RoundsStoreOutOfDrones { get; init; }
     public required int StarvingTurns { get; init; }
     public required int ShortageStops { get; init; }
+    /// <summary>Plots bought at auction, and how many waited 2+ rounds for a drone (or never got one).</summary>
+    public required int AuctionPlots { get; init; }
+    public required int AuctionPlotsIdle { get; init; }
     public required Dictionary<string, int> RoundEvents { get; init; }
 
     public static GameStats From(Game game)
@@ -54,6 +57,12 @@ public sealed record GameStats
         for (int r = 0; r < game.Rounds; r++) prices[r] = new int[Engine.Goods.Count];
         foreach (var a in events.OfType<AuctionEvent>()) prices[a.Round - 1][(int)a.Good] = a.NewPrice;
         var landSold = events.OfType<LandSoldEvent>().Where(e => e.Store).ToList();
+        var installs = events.OfType<TurnActionEvent>().Where(e => e.Action == "install").ToList();
+        int idle = events.OfType<LandSoldEvent>().Count(sold =>
+        {
+            var first = installs.FirstOrDefault(i => i.Plot == sold.Plot && i.Seat == sold.Buyer && i.Round >= sold.Round);
+            return (first == null ? game.Rounds + 1 : first.Round) - sold.Round >= 2;
+        });
         var players = game.Players.Select(p => new PlayerStats
         {
             Seat = p.Seat,
@@ -92,6 +101,8 @@ public sealed record GameStats
             RoundsStoreOutOfDrones = game.StoreDronesAfterTurns.Count(d => d == 0),
             StarvingTurns = events.OfType<TurnEvent>().Count(e => e.Starving),
             ShortageStops = events.OfType<ProductionEvent>().Sum(e => e.Shortage),
+            AuctionPlots = events.OfType<LandSoldEvent>().Count(),
+            AuctionPlotsIdle = idle,
             RoundEvents = events.OfType<RoundEventHappened>().GroupBy(e => e.Kind.ToString()).ToDictionary(g => g.Key, g => g.Count()),
         };
     }

@@ -109,11 +109,15 @@ public sealed class CpuSeat : ISeat
         if (_budgets.TryGetValue(a, out int b)) return b;
         var c = game.Settings.Cpu;
         int roundsLeft = game.Rounds - game.Round + 1;
-        double worth = game.Settings.Scoring.PlotValue + BestJob(game, me, a.Plot).Value * roundsLeft * c.LandHorizonShare;
-        int reserve = c.LandReserve + game.CpuRng.Next(Math.Max(1, c.LandReserveRandom));
+        var job = BestJob(game, me, a.Plot);
+        double worth = game.Settings.Scoring.PlotValue + job.Value * roundsLeft * c.LandHorizonShare;
+        int develop = game.DronePriceFor(me) + game.Settings.Goods.Of(job.Good).OutfitCost;
+        int extra = game.CpuRng.Next(Math.Max(1, c.LandReserveRandom));
         // No free money to develop it: a plot without a drone only scores its flat value.
-        if (me.Cash - reserve < game.DronePriceFor(me)) worth = Math.Min(worth, game.Settings.Scoring.PlotValue * 0.8);
-        b = (int)Math.Min(LandAuction.MaxBid(me) - reserve / 2, worth);
+        if (me.Cash - extra < develop) worth = Math.Min(worth, game.Settings.Scoring.PlotValue * 0.8);
+        // Usually it keeps enough to put a drone on the plot (and a little more); sometimes it overreaches.
+        int keep = game.CpuRng.Chance(c.LandOverreachChance) ? extra / 2 : develop + c.LandReserve + extra;
+        b = (int)Math.Min(LandAuction.MaxBid(me) - keep, worth);
         _budgets[a] = b;
         return b;
     }
