@@ -195,6 +195,9 @@ public sealed class CpuSeat : ISeat
             var (job, value) = BestJob(game, me, plot, t.Starving);
             double current = plot.Drone is { } d ? Expected(game, me, plot, d) * UnitValue(game, me, d) - EnergyCost(game, me, d) : 0;
             if (plot.Drone == job) continue;
+            // Switching a drone to mining costs part of this round's output, spread over the rounds left.
+            if (plot.Drone != null && job.IsMined())
+                value -= value * (1 - 1.0 / game.Settings.Production.MiningSwitchDivisor) / Math.Max(1, game.Rounds - game.Round + 1);
             double gainUnits = (value - current) / Math.Max(1, UnitValue(game, me, job));
             if (gainUnits < c.MinJobGain) continue;
             int outfit = game.Settings.Goods.Of(job).OutfitCost;

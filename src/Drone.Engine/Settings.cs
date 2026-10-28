@@ -353,6 +353,8 @@ public sealed class ProductionSettings
     /// LearningCap neighbours.</summary>
     public required int LearningCap { get; init; }
     public required int LearningBonus { get; init; }
+    /// <summary>A plot switched from another job to mining makes 1/this of its output that round.</summary>
+    public required int MiningSwitchDivisor { get; init; }
     /// <summary>Luck: + round(N(0,1) x Spread).</summary>
     public required double LuckSpread { get; init; }
     public required int MaxOutput { get; init; }

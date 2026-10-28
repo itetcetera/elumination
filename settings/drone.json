@@ -118,6 +118,7 @@
     "scaleBonus": 2,
     "learningCap": 2,
     "learningBonus": 2,
+    "miningSwitchDivisor": 2,
     "luckSpread": 2.0,
     "maxOutput": 20,
     "energyPerDrone": 2.0

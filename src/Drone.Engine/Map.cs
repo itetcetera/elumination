@@ -24,6 +24,8 @@ public sealed class Plot
     public bool ForSale { get; set; }
     /// <summary>Assayed: the deposit levels are known to everyone (F9).</summary>
     public bool Assayed { get; set; }
+    /// <summary>The job it had before this round's development turns (for the mining switch rule).</summary>
+    public Good? JobBefore { get; set; }
 
     public bool IsWater => Terrain is Terrain.River or Terrain.Lake;
     public bool IsTown => Terrain is Terrain.Store or Terrain.Outpost;

@@ -61,6 +61,8 @@ public sealed class Production
                 + game.Rng.RoundNormal(s.Production.LuckSpread);
             v = Math.Clamp(v, 0, s.Production.MaxOutput);
             if (job == Good.Food) v = FoodAfterSpecies(owner, v);
+            // A plot switched to a mining job this round makes a share of its output.
+            if (job.IsMined() && plot.JobBefore is { } before && before != job) v /= s.Production.MiningSwitchDivisor;
             output[plot.Index] = v;
         }
         var prod = new Production { Game = game, Output = output };

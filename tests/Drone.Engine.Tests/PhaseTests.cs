@@ -263,6 +263,23 @@ public class ProductionTests
     }
 
     [Fact]
+    public void A_plot_switched_to_mining_makes_half_that_round()
+    {
+        var game = TestGames.New(TestGames.Defaults.With("production.luckSpread=0", "game.speciesEnabled=false"));
+        var me = game.Players[0];
+        var plots = game.Map.Plots.Where(p => p.Terrain == Terrain.Plain && !p.Bank).Take(2).ToList();
+        foreach (var p in plots) p.Owner = me.Seat;
+        plots[0].JobBefore = Good.Food;   // switched from food
+        plots[1].JobBefore = null;        // a new install
+        foreach (var p in plots) p.Drone = Good.Ore;
+        me.Held[(int)Good.Energy] = 10;
+        int full = Production.Expected(game, me, plots[1], Good.Ore);
+        var prod = Production.Run(game);
+        Assert.Equal(full, prod.Output[plots[1].Index]);
+        Assert.Equal(full / 2, prod.Output[plots[0].Index]);
+    }
+
+    [Fact]
     public void Each_missing_energy_unit_stops_a_plot()
     {
         var game = TestGames.New(TestGames.Defaults.With("production.luckSpread=0", "game.speciesEnabled=false"));

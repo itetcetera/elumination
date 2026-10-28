@@ -61,6 +61,7 @@ public sealed class DevTurn
 
     public static IEnumerable<int> RunAll(Game game)
     {
+        foreach (var plot in game.Map.Plots) plot.JobBefore = plot.Drone;
         var order = game.ByRank.ToList();
         int flip = (int)Math.Round(game.Settings.Store.TurnFlipDronesPer44Plots * game.PlotScale);
         if (game.Store.Drones < flip) order.Reverse();
