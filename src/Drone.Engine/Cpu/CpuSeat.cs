@@ -266,7 +266,7 @@ public sealed class CpuSeat : ISeat
     {
         var c = game.Settings.Cpu;
         var s = game.Settings.Turn;
-        if (!c.HuntSideRewards || t.Leading || t.Glimmer.Caught || t.Glimmer.Shows.Count == 0) return null;
+        if (!c.HuntSideRewards || t.Leading || t.Glimmer.Caught || t.Glimmer.At < 0) return null;
         double pubTrip = TownTrip(game, t, game.Map.Store) + s.PubSeconds;
         if (_huntUntil < 0)
         {
@@ -279,13 +279,16 @@ public sealed class CpuSeat : ISeat
             return new HuntGlimmer();
         }
         if (t.Elapsed >= _huntUntil || t.TimeLeft - pubTrip < 2) return null;
-        if (t.Glimmer.ShowingAt(t.Elapsed) is { } at)
+        if (t.Glimmer.Showing is { } at)
         {
-            if (!t.InTown && t.Location.Index == at) return new CatchGlimmer();
             _plan.Enqueue(new WalkTo(at));
             _commands--;
             return new Wait(c.GlimmerReactSeconds);
         }
+        // It won't show while we stand in the mountains: step off to watch.
+        if (!t.InTown && t.Location.Terrain == Terrain.Mountain
+            && game.Map.Neighbours(t.Location).Where(n => n.Terrain is Terrain.Plain).MinBy(n => n.Index) is { } off)
+            return new WalkTo(off.Index);
         _commands--;
         return new Wait(0.1);
     }

@@ -86,7 +86,7 @@ public sealed class DevTurn
             Player = p,
             Seconds = seconds,
             Starving = starving,
-            Glimmer = Glimmer.Create(game, seconds),
+            Glimmer = Glimmer.Create(game),
             Crate = Crate.Create(game),
             Event = ev,
         };
@@ -116,7 +116,11 @@ public sealed class DevTurn
         game.Phase = null;
     }
 
-    void Spend(double s) => TimeLeft = Math.Max(0, TimeLeft - s);
+    void Spend(double s)
+    {
+        TimeLeft = Math.Max(0, TimeLeft - s);
+        Glimmer.Advance(Elapsed, !InTown && Location.Terrain == Terrain.Mountain);
+    }
 
     /// <summary>Spends time and yields it as ticks; false when the clock ran out first.</summary>
     IEnumerable<int> Take(double seconds, Action<bool> ok)
@@ -261,6 +265,8 @@ public sealed class DevTurn
             foreach (var x in Take(StepCost(step), r => ok = r)) yield return x;
             if (!ok) yield break;
             Location = step;
+            // Walking onto the Glimmer while it shows catches it (F11).
+            if (Glimmer.Showing == step.Index && !Leading) TryGlimmer();
         }
     }
 
@@ -415,7 +421,7 @@ public sealed class DevTurn
     void TryGlimmer()
     {
         if (InTown || Leading) { Message = "No catch"; return; }
-        if (!Glimmer.TryCatch(Location, Elapsed)) { Message = "Missed"; return; }
+        if (!Glimmer.TryCatch(Location)) { Message = "Missed"; return; }
         int reward = T.GlimmerReward[Game.Band];
         Player.Cash += reward;
         Log("glimmer", Location.Index, reward);
@@ -465,39 +471,55 @@ public sealed class DevTurn
     }
 }
 
-/// <summary>The Glimmer (F11): a shy lizard on the mountains that shows for a moment, hides, and
-/// sometimes moves. Catch it while it shows, standing on its plot with no drone. Once per turn.</summary>
+/// <summary>The Glimmer (F11): a shy lizard on the mountains. It shows for a moment, then hides,
+/// and after each hide moves to a random mountain or stays. As in the original, it won't show while
+/// the player is in the mountains (it hides again instead), and walking onto it while it shows
+/// catches it. Once per turn. Its moves draw from the game's dice as the turn goes.</summary>
 public sealed class Glimmer
 {
-    public readonly record struct Window(double From, double To, int Plot);
-    public List<Window> Shows { get; } = [];
+    Game _game = null!;
+    List<Plot> _mountains = [];
+    double _next;
+    /// <summary>The mountain it is on, or -1 when the map has none.</summary>
+    public int At { get; private set; } = -1;
+    public bool Visible { get; private set; }
     public bool Caught { get; private set; }
 
-    public static Glimmer Create(Game game, double seconds)
+    public static Glimmer Create(Game game)
     {
-        var g = new Glimmer();
-        var t = game.Settings.Turn;
-        var mountains = game.Map.Plots.Where(p => p.Terrain == Terrain.Mountain).ToList();
-        if (mountains.Count == 0) return g;
-        var at = game.Rng.Pick(mountains);
-        double time = 0;
-        while (time < seconds)
-        {
-            double show = game.Rng.Range(t.GlimmerShowSeconds[0], t.GlimmerShowSeconds[1]);
-            g.Shows.Add(new Window(time, time + show, at.Index));
-            time += show + game.Rng.Range(t.GlimmerHideSeconds[0], t.GlimmerHideSeconds[1]);
-            if (game.Rng.Chance(t.GlimmerMoveChance)) at = game.Rng.Pick(mountains);
-        }
+        var g = new Glimmer { _game = game, _mountains = game.Map.Plots.Where(p => p.Terrain == Terrain.Mountain).ToList() };
+        if (g._mountains.Count > 0) g.At = game.Rng.Pick(g._mountains).Index;
         return g;
     }
 
-    /// <summary>Where it shows right now, if it does.</summary>
-    public int? ShowingAt(double elapsed) => Caught ? null : Shows.FirstOrDefault(w => elapsed >= w.From && elapsed < w.To) is { To: > 0 } w ? w.Plot : null;
-
-    public bool TryCatch(Plot at, double elapsed)
+    /// <summary>Runs its show/hide clock up to the turn's elapsed time.</summary>
+    public void Advance(double elapsed, bool playerInMountains)
     {
-        if (ShowingAt(elapsed) != at.Index) return false;
+        var t = _game.Settings.Turn;
+        while (!Caught && At >= 0 && _next <= elapsed)
+        {
+            if (!Visible && !playerInMountains)
+            {
+                Visible = true;
+                _next += _game.Rng.Range(t.GlimmerShowSeconds[0], t.GlimmerShowSeconds[1]);
+            }
+            else
+            {
+                Visible = false;
+                _next += _game.Rng.Range(t.GlimmerHideSeconds[0], t.GlimmerHideSeconds[1]);
+                if (_game.Rng.Chance(t.GlimmerMoveChance)) At = _game.Rng.Pick(_mountains).Index;
+            }
+        }
+    }
+
+    /// <summary>Where it shows right now, if it does.</summary>
+    public int? Showing => !Caught && Visible ? At : null;
+
+    public bool TryCatch(Plot at)
+    {
+        if (Showing != at.Index) return false;
         Caught = true;
+        Visible = false;
         return true;
     }
 }
