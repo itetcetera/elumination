@@ -4,6 +4,8 @@ public sealed class Player
 {
     public required int Seat { get; init; }
     public required string Name { get; init; }
+    /// <summary>The caller's own id for this seat (a live server's member id), or null.</summary>
+    public string? Key { get; init; }
     public required bool IsCpu { get; init; }
     /// <summary>Beginner assists (set per player before the game).</summary>
     public required bool Beginner { get; init; }
@@ -59,4 +61,4 @@ public sealed record ScoreEvent(int Round, int Seat, int Total, int Rank) : Game
 public sealed record GameOverEvent(int Round, int Colony, int Rating, string Verdict, int Winner, bool FirstFounder) : GameEvent(Round);
 
 /// <summary>Who sits where, before the game starts.</summary>
-public sealed record SeatSetup(string Name, bool IsCpu, string? Species = null, bool Beginner = false);
+public sealed record SeatSetup(string Name, bool IsCpu, string? Species = null, bool Beginner = false, string? Key = null);

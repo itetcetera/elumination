@@ -57,7 +57,7 @@ public sealed class Game
             string species = !settings.Game.SpeciesEnabled ? "plain"
                 : setup.Species ?? TakeRandom(speciesLeft);
             var sp = settings.Species[species];
-            var p = new Player { Seat = i, Name = setup.Name, IsCpu = setup.IsCpu, Beginner = setup.Beginner, SpeciesId = species, Species = sp };
+            var p = new Player { Seat = i, Name = setup.Name, Key = setup.Key, IsCpu = setup.IsCpu, Beginner = setup.Beginner, SpeciesId = species, Species = sp };
             p.Cash = setup.IsCpu ? settings.Start.CpuCash : settings.Start.Cash + sp.CashDelta;
             p.Held[(int)Good.Food] = settings.Start.Food;
             p.Held[(int)Good.Energy] = settings.Start.Energy;
