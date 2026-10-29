@@ -60,7 +60,7 @@ public sealed class CpuSeat : ISeat
         if (good.IsExport()) b = KnownDeposit(game, plot, good);
         if (good.IsExport() && b == 0) return 0;
         int same = game.PlotsOf(me).Count(x => x.Drone == good && x != plot) + 1;
-        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == me.Seat && n.Drone == good)) * s.Production.LearningBonus;
+        int learn = Production.Learning(game, me, plot, good);
         int v = Math.Clamp(b.Value + same / s.Production.ScaleStep * s.Production.ScaleBonus + learn, 0, s.Production.MaxOutput);
         return good == Good.Food ? Production.FoodAfterSpecies(me, v) : v;
     }

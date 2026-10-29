@@ -36,10 +36,20 @@ public sealed class Production
         if (Base(s, plot, good) is not int b) return 0;
         int same = game.PlotsOf(owner).Count(x => x.Drone == good && x != plot) + 1 + extra;
         int scale = same / s.Production.ScaleStep * s.Production.ScaleBonus;
-        int learn = Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == good)) * s.Production.LearningBonus;
+        int learn = Learning(game, owner, plot, good);
         int v = b + scale + learn;
         v = Math.Clamp(v, 0, s.Production.MaxOutput);
         return good == Good.Food ? FoodAfterSpecies(owner, v) : v;
+    }
+
+    /// <summary>The learning curve: LearningBonus per matching neighbour of the owner's (up to
+    /// LearningCap of them); food and energy need FarmNeighboursPerBonus neighbours per bonus.</summary>
+    public static int Learning(Game game, Player owner, Plot plot, Good good)
+    {
+        var p = game.Settings.Production;
+        int n = Math.Min(p.LearningCap, game.Map.Neighbours(plot).Count(x => x.Owner == owner.Seat && x.Drone == good));
+        if (good is Good.Food or Good.Energy) n /= Math.Max(1, p.FarmNeighboursPerBonus);
+        return n * p.LearningBonus;
     }
 
     /// <summary>The Prospector's cost: bigger food plots make a little less.</summary>
@@ -57,7 +67,7 @@ public sealed class Production
             var owner = game.Players[plot.Owner];
             int same = game.PlotsOf(owner).Count(x => x.Drone == job);
             int v = b + same / s.Production.ScaleStep * s.Production.ScaleBonus
-                + Math.Min(s.Production.LearningCap, game.Map.Neighbours(plot).Count(n => n.Owner == owner.Seat && n.Drone == job)) * s.Production.LearningBonus
+                + Learning(game, owner, plot, job)
                 + game.Rng.RoundNormal(s.Production.LuckSpread);
             v = Math.Clamp(v, 0, s.Production.MaxOutput);
             if (job == Good.Food) v = FoodAfterSpecies(owner, v);

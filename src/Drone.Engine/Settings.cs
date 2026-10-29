@@ -354,6 +354,7 @@ public sealed class ProductionSettings
     /// <summary>Learning curve: +LearningBonus per neighbouring own plot with the same good, up to
     /// LearningCap neighbours.</summary>
     public required int LearningCap { get; init; }
+    public required int FarmNeighboursPerBonus { get; init; }
     public required int LearningBonus { get; init; }
     /// <summary>A plot switched from another job to mining makes 1/this of its output that round.</summary>
     public required int MiningSwitchDivisor { get; init; }
