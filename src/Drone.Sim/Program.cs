@@ -16,10 +16,12 @@ try
         case "run": Run(opts); break;
         case "sweep": Sweep(opts); break;
         case "game": OneGame(opts); break;
+        case "rounds": Rounds(opts); break;
         default:
             Console.WriteLine("""
                 drone-sim run   --games 1000 --rounds 12 [--variant original] [--set land.storeStartPrice=200] [--seed 1] [--species sprinter,broker,engineer,settler] [--json out.json]
                 drone-sim sweep --param production.learningCap --values 1,2,3 [run options]
+                drone-sim rounds --games 300 --rounds 18 [run options]   averages round by round
                 drone-sim game  --seed 7 --rounds 12 [--variant original] [--set ...]
                 Settings come from settings/drone.json; variants from settings/variants/NAME.json.
                 """);
@@ -70,6 +72,39 @@ static void Sweep(Options o)
         Console.WriteLine($"{v,-10} {r.WinnerTotal,8:0} {r.Colony,8:0} {r.Margin * 100,6:0.0}% {r.LeadChanges,7:0.00} {r.MidLeaderWins * 100,8:0.0}% {r.WinnerExportShare * 100,6:0.0}% {r.PlayerPlots,6:0.0} {r.PlayerDrones,6:0.0} {r.FreePlotsAtEnd,5:0.0} {r.AvgLandPrice,6:0} {spread * 100,6:0.0}%");
     }
     Console.WriteLine("spread = best minus worst species win rate");
+}
+
+static void Rounds(Options o)
+{
+    var settings = Load(o);
+    var (games, rounds, seed, species) = (o.Int("games", 300), o.Int("rounds", 12), (ulong)o.Int("seed", 1), o.Get("species")?.Split(','));
+    int n = settings.Game.Players;
+    // Per round: energy-short plots, starving turns, food and energy price, energy and food made, units
+    // traded, installs (all per game, production and installs per player).
+    var sum = new double[rounds + 1, 8];
+    var gate = new object();
+    Parallel.For(0, games, i =>
+    {
+        var seats = Enumerable.Range(0, n).Select(p => new SeatSetup($"CPU {p + 1}", true, species != null && p < species.Length ? species[p] : null)).ToList();
+        var game = new Game(settings, rounds, seats, seed + (ulong)i).Play();
+        var row = new double[rounds + 1, 8];
+        foreach (var e in game.Events)
+        {
+            switch (e)
+            {
+                case ProductionEvent p: row[p.Round, 0] += p.Shortage; row[p.Round, 4] += p.Produced[(int)Good.Energy] / (double)n; row[p.Round, 5] += p.Produced[(int)Good.Food] / (double)n; break;
+                case TurnEvent t when t.Starving: row[t.Round, 1]++; break;
+                case AuctionEvent a when a.Good == Good.Food: row[a.Round, 2] += a.StartPrice; break;
+                case AuctionEvent a when a.Good == Good.Energy: row[a.Round, 3] += a.StartPrice; row[a.Round, 6] += a.Units; break;
+                case TurnActionEvent t when t.Action == "install": row[t.Round, 7] += 1.0 / n; break;
+            }
+        }
+        lock (gate) for (int r = 1; r <= rounds; r++) for (int k = 0; k < 8; k++) sum[r, k] += row[r, k] / games;
+    });
+    Console.WriteLine($"{games} games, {rounds} rounds: per game (made and installs per player)");
+    Console.WriteLine($"{"round",5} {"eShort",7} {"starve",7} {"foodP",6} {"enerP",6} {"eMade",6} {"fMade",6} {"eSold",6} {"install",7}");
+    for (int r = 1; r <= rounds; r++)
+        Console.WriteLine($"{r,5} {sum[r, 0],7:0.00} {sum[r, 1],7:0.00} {sum[r, 2],6:0} {sum[r, 3],6:0} {sum[r, 4],6:0.0} {sum[r, 5],6:0.0} {sum[r, 6],6:0.0} {sum[r, 7],7:0.00}");
 }
 
 static void OneGame(Options o)
