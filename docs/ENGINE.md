@@ -221,3 +221,13 @@ Prices are measured over the middle third of the rounds (Marcus): late in the ga
 their own food and energy, so those prices fall to their floors whatever the rules, and only rise
 when players fail to feed or power themselves.
 Marcus wants players to compete with each other, which sometimes means holding the others down.
+
+## Player-facing wording (draft, for the rules screen)
+
+Marcus (2026-10-29): rules like these must be explained so players can play around them.
+
+- Storage: "You can store up to 50 of each mined good (ore, crystite, Helion). Anything over that
+  is lost at the auction."
+- Final count: "At game end, food, energy and ore are valued at what the colony would pay for them
+  next month. If the colony is running short, what you hold is worth more."
+- Switching to mining: "A drone switched to a mining job only makes half in its first month."
