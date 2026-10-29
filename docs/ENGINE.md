@@ -176,3 +176,23 @@ At the x2 scale:
 
 All-Settler CPU games, 1,000 each: exports take 36% / 54% / 53% of the winner's wealth at 12 / 18 /
 24 rounds; the half-time leader wins 47% at every length; lead changes 3.8 / 4.3 / 4.1.
+
+## Tuning targets (Marcus, 2026-10-29)
+
+Measured on all-Settler CPU games (`--species settler,settler,settler,settler`) at 12, 18 and 24
+rounds. Each target holds at every length.
+
+| Target | Bar | Today (12 / 18 / 24) |
+|---|---|---|
+| Half-time leader wins | at most 55% | 49% / 55% / 53% |
+| Lead changes | at least 3.5 | 3.4 / 4.1 / 3.7 |
+| Final margin (winner over second) | 10-15% | 14% / 16% / 22% |
+| Winner's wealth from exports | 30-55% | 31% / 55% / 50% |
+| Last-round food price | 60-100 | 198 / 40 / 77 |
+| Last-round energy price | 40-70 | 29 / 26 / 29 |
+| Starving turns per game | at most 1.5 | 1.0 / 0.9 / 1.5 |
+| Energy-short plots per player per game | at most 2 | 2.2 / 5.8 / 8.1 |
+| First Founder | 85-90% of games | 99.5% / 97.1% / 96.7% |
+
+First Founder depends only on the colony total, so it is set last, through the rating thresholds.
+Marcus wants players to compete with each other, which sometimes means holding the others down.
