@@ -149,9 +149,11 @@ public sealed class CpuSeat : ISeat
     int _commands;
     int _crateTarget = -1;
     double _huntUntil = -1;
+    bool _coverThisTurn;
 
     public TurnCommand? Turn(Game game, Player me, DevTurn t)
     {
+        var c0 = game.Settings.Cpu;
         if (_turn != t)
         {
             _turn = t;
@@ -160,6 +162,7 @@ public sealed class CpuSeat : ISeat
             _commands = 0;
             _crateTarget = -1;
             _huntUntil = -1;
+            _coverThisTurn = game.CpuRng.Chance(c0.CoverEnergyChance);
         }
         else if (t.Message != null)
         {
@@ -196,7 +199,7 @@ public sealed class CpuSeat : ISeat
         {
             int next = Math.Min(game.Round + 1, game.Rounds);
             if (c.CoverFood && ProducedEstimate(game, me, Good.Food) + c.CoverSlack < game.FoodNeed(me, next)) must = Good.Food;
-            else if (c.CoverEnergy && ProducedEstimate(game, me, Good.Energy) + c.CoverSlack < game.EnergyNeed(me)) must = Good.Energy;
+            else if (c.CoverEnergy && _coverThisTurn && ProducedEstimate(game, me, Good.Energy) + c.CoverSlack < game.EnergyNeed(me)) must = Good.Energy;
         }
         foreach (var plot in game.PlotsOf(me))
         foreach (var job in Engine.Goods.All)

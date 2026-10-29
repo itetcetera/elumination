@@ -229,6 +229,7 @@
     "coverFood": false,
     "coverEnergy": false,
     "coverSlack": 0,
+    "coverEnergyChance": 1.0,
     "landReserve": 400,
     "landOverreachChance": 0.2,
     "landReserveRandom": 512,

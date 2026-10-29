@@ -506,6 +506,8 @@ public sealed class CpuSettings
     public bool CoverFood { get; init; }
     public bool CoverEnergy { get; init; }
     public int CoverSlack { get; init; }
+    /// <summary>Chance, each turn, that a CPU with CoverEnergy minds its energy that turn.</summary>
+    public double CoverEnergyChance { get; init; } = 1;
     /// <summary>Land: cash a CPU keeps after buying: a drone and outfit for the plot + Reserve +
     /// random[0, ReserveRandom). With OverreachChance it keeps only half the random part.</summary>
     public required int LandReserve { get; init; }
