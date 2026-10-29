@@ -59,6 +59,9 @@ public sealed record Report
     public required double PlayerPlots { get; init; }
     public required double PlayerDrones { get; init; }
     public required double PlayerMoney { get; init; }
+    public double[] PlayerJobs { get; init; } = new double[Engine.Goods.Count];
+    public double[] PlayerHeld { get; init; } = new double[Engine.Goods.Count];
+    public double[] PlayerRevenue { get; init; } = new double[Engine.Goods.Count];
     public required double PlayerLand { get; init; }
     public required double PlayerGoods { get; init; }
 
@@ -110,6 +113,9 @@ public sealed record Report
             PlayerPlots = players.Average(p => (double)p.Plots),
             PlayerDrones = players.Average(p => (double)p.Drones),
             PlayerMoney = players.Average(p => (double)p.Money),
+            PlayerJobs = Engine.Goods.All.Select(g => players.Average(p => (double)p.Jobs[(int)g])).ToArray(),
+            PlayerRevenue = Engine.Goods.All.Select(g => players.Average(p => (double)p.Revenue[(int)g])).ToArray(),
+            PlayerHeld = Engine.Goods.All.Select(g => players.Average(p => (double)p.Held[(int)g])).ToArray(),
             PlayerLand = players.Average(p => (double)p.Land),
             PlayerGoods = players.Average(p => (double)p.GoodsValue),
         };
@@ -137,6 +143,8 @@ public sealed record Report
         w.WriteLine($"  catch-up: half-time leader wins {Pct(MidLeaderWins)}, half-time last climbs {Pct(MidLastClimbs)}");
         w.WriteLine($"  winner's wealth from exports {Pct(WinnerExportShare)}");
         w.WriteLine($"  per player: plots {PlayerPlots:0.0}, drones {PlayerDrones:0.0}; money {PlayerMoney:0}, land {PlayerLand:0}, goods {PlayerGoods:0}");
+        w.WriteLine($"  per player at end: drones {string.Join(" ", Engine.Goods.All.Select(g => $"{g} {PlayerJobs[(int)g]:0.0}"))}; held {string.Join(" ", Engine.Goods.All.Select(g => $"{g} {PlayerHeld[(int)g]:0}"))}");
+        w.WriteLine($"  per player sales: {string.Join(" ", Engine.Goods.All.Select(g => $"{g} ${PlayerRevenue[(int)g]:0}"))}");
         w.WriteLine($"  land: store plots sold {StorePlotsSold:0.0} (avg ${AvgLandPrice:0}), unsold {StorePlotsUnsold:0.0}, free at end {FreePlotsAtEnd:0.0}, bought plots idle 2+ rounds {Pct(AuctionPlotsIdle)}");
         w.WriteLine($"  store out of drones {RoundsStoreOutOfDrones:0.0} rounds; starving turns {StarvingTurns:0.0}; energy-short plots {ShortageStops:0.0}; auctions skipped {AuctionsSkipped:0.0}");
         w.WriteLine($"  Glimmer: hunts {GlimmerHunts:0.0} a game, caught {Pct(GlimmerCatchRate)} of hunts");

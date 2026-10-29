@@ -92,6 +92,8 @@ static GameStats PlayOne(int seed)
             Drones = Enumerable.Range(0, GameState.Plots).Count(i => state.PlotsPlayer[i] == p && state.PlotsExp[i] != Exp.None),
             Revenue = Enumerable.Range(0, 5).Select(g => revenue[p, g]).ToArray(),
             LandBought = 0,
+            Jobs = Enumerable.Range(0, 5).Select(g => Enumerable.Range(0, GameState.Plots).Count(i => state.PlotsPlayer[i] == p && state.PlotsExp[i] == g + 1)).ToArray(),
+            Held = Enumerable.Range(0, 5).Select(g => g < 4 ? (int)state.GoodsPlayersNb[g * 4 + p] : 0).ToArray(),
         }).ToArray(),
         LeadChanges = leadChanges,
         Margin = win <= 0 ? 0 : (win - total(order[1])) / (double)win,

@@ -190,17 +190,20 @@ public sealed class CpuSeat : ISeat
         int dronePrice = game.DronePriceFor(me);
         (Plot plot, Good job, double gain, double time, bool empty)? best = null;
         foreach (var plot in game.PlotsOf(me))
+        foreach (var job in Engine.Goods.All)
         {
-            if (_tried.Contains(plot.Index)) continue;
-            var (job, value) = BestJob(game, me, plot, t.Starving);
+            if (_tried.Contains(plot.Index) || plot.Drone == job) continue;
+            if (t.Starving && job != Good.Food) continue;
+            if (job == Good.Helion && !game.Settings.Game.HelionEnabled) continue;
+            if (Production.Base(game.Settings, plot, job) == null) continue;
+            double value = Expected(game, me, plot, job) * UnitValue(game, me, job) - EnergyCost(game, me, job);
             double current = plot.Drone is { } d ? Expected(game, me, plot, d) * UnitValue(game, me, d) - EnergyCost(game, me, d) : 0;
-            if (plot.Drone == job) continue;
             // Switching a drone to mining costs part of this round's output, spread over the rounds left.
             if (plot.Drone != null && job.IsMined())
                 value -= value * (1 - 1.0 / game.Settings.Production.MiningSwitchDivisor) / Math.Max(1, game.Rounds - game.Round + 1);
+            int outfit = game.Settings.Goods.Of(job).OutfitCost;
             double gainUnits = (value - current) / Math.Max(1, UnitValue(game, me, job));
             if (c.MinJobValue > 0 ? value - current < c.MinJobValue : gainUnits < c.MinJobGain) continue;
-            int outfit = game.Settings.Goods.Of(job).OutfitCost;
             var town = game.Map.NearestTown(plot);
             double time;
             bool empty = plot.Drone == null;

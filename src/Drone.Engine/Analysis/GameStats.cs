@@ -79,6 +79,8 @@ public sealed record GameStats
             Drones = game.PlotsOf(p).Count(x => x.Drone != null),
             Revenue = Engine.Goods.All.Select(g => revenue[p.Seat, (int)g]).ToArray(),
             LandBought = events.OfType<LandSoldEvent>().Count(e => e.Buyer == p.Seat),
+            Jobs = Engine.Goods.All.Select(g => game.PlotsOf(p).Count(x => x.Drone == g)).ToArray(),
+            Held = p.Held.ToArray(),
         }).ToArray();
         return new GameStats
         {
@@ -127,4 +129,8 @@ public sealed record PlayerStats
     /// <summary>Money taken in by selling each good, [good].</summary>
     public required long[] Revenue { get; init; }
     public required int LandBought { get; init; }
+    /// <summary>Drones on each job at the end, [good].</summary>
+    public int[] Jobs { get; init; } = new int[Engine.Goods.Count];
+    /// <summary>Goods held at the end, [good].</summary>
+    public int[] Held { get; init; } = new int[Engine.Goods.Count];
 }
