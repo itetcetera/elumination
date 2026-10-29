@@ -113,8 +113,13 @@ public sealed class Game
     public int FoodNeed(Player p, int? round = null)
     {
         int r = Math.Clamp(round ?? Round, 1, Rounds);
+        var g = Settings.Game;
+        if (g.FoodNeedPerDrone > 0)
+            return g.FoodNeedByThird[0] + g.FoodNeedPerDrone * Map.Plots.Count(x => x.Owner == p.Seat && x.Drone is { } d && d != Good.Food) + p.Species.ExtraFoodNeed;
+        if (g.FoodNeedEveryRounds > 0)
+            return g.FoodNeedByThird[0] + (r - 1) / g.FoodNeedEveryRounds * g.FoodNeedStep + p.Species.ExtraFoodNeed;
         int third = Math.Min(2, (r - 1) * 3 / Rounds);
-        return Settings.Game.FoodNeedByThird[third] + p.Species.ExtraFoodNeed;
+        return g.FoodNeedByThird[third] + p.Species.ExtraFoodNeed;
     }
 
     /// <summary>Energy a player's drones use: every non-energy drone (G5), less for the Engineer.</summary>

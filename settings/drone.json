@@ -11,6 +11,9 @@
     "ticksPerSecond": 60,
     "roundScaling": "stretch",
     "foodNeedByThird": [6, 8, 10],
+    "foodNeedStep": 2,
+    "foodNeedEveryRounds": 3,
+    "foodNeedPerDrone": 0,
     "helionEnabled": true,
     "speciesEnabled": true,
     "landAuctionMode": "live"

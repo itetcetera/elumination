@@ -139,6 +139,12 @@ public sealed class GameSettings
     public required RoundScaling RoundScaling { get; init; }
     /// <summary>Food need bands, by thirds of the game: 3 / 4 / 5.</summary>
     public required int[] FoodNeedByThird { get; init; }
+    /// <summary>When FoodNeedEveryRounds is above 0: food need starts at FoodNeedByThird[0] and
+    /// rises FoodNeedStep every FoodNeedEveryRounds rounds, whatever the game length.</summary>
+    public required int FoodNeedStep { get; init; }
+    public required int FoodNeedEveryRounds { get; init; }
+    /// <summary>Extra food each player needs per drone not on food (0 = none).</summary>
+    public required int FoodNeedPerDrone { get; init; }
     /// <summary>Enables the second export good (Helion ice). Off = the original's one export.</summary>
     public required bool HelionEnabled { get; init; }
     /// <summary>Enables species abilities. Off = everyone plays the plain rules.</summary>

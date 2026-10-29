@@ -2,7 +2,7 @@
 // scale of goods and money (as in x1.json), one export, no species, the original turn length, caps
 // and auction rules. Used as the baseline against the faithful port.
 {
-  "game": {"foodNeedByThird": [3, 4, 5], "helionEnabled": false, "speciesEnabled": false},
+  "game": {"foodNeedByThird": [3, 4, 5], "foodNeedEveryRounds": 0, "helionEnabled": false, "speciesEnabled": false},
   "map": {"seedLevel": 3, "seedDropPerHex": 1, "seedRadius": 99},
   "start": {"cash": 1000, "cpuCash": 1200, "food": 4, "energy": 2},
   "store": {"food": 8, "energy": 8, "ore": 8, "orePerDrone": 2, "dronePriceMultiplier": 10, "startDronePrice": 100},

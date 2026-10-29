@@ -178,9 +178,10 @@ public class GameTests
         var game = TestGames.New(rounds: 18, setup: TestGames.Cpus(4, "sprinter", "broker"));
         var sprinter = game.Players.Single(p => p.SpeciesId == "sprinter");
         var broker = game.Players.Single(p => p.SpeciesId == "broker");
-        Assert.Equal(6, game.FoodNeed(broker, 6));
-        Assert.Equal(8, game.FoodNeed(broker, 7));
-        Assert.Equal(10, game.FoodNeed(broker, 13));
+        // 6 at the start, +2 every 3 rounds.
+        Assert.Equal(6, game.FoodNeed(broker, 3));
+        Assert.Equal(8, game.FoodNeed(broker, 4));
+        Assert.Equal(16, game.FoodNeed(broker, 18));
         Assert.Equal(8, game.FoodNeed(sprinter, 1));
     }
 }

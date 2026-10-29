@@ -2,7 +2,7 @@
 // drone.json, auctions at the original unit pace). Marcus made x2 the default on 2026-10-28; this
 // keeps the old scale for comparisons.
 {
-  "game": {"foodNeedByThird": [3, 4, 5]},
+  "game": {"foodNeedByThird": [3, 4, 5], "foodNeedEveryRounds": 0},
   "map": {"seedLevel": 3, "seedDropPerHex": 1, "seedRadius": 99},
   "start": {"cash": 1000, "cpuCash": 1200, "food": 4, "energy": 2},
   "store": {"food": 8, "energy": 8, "ore": 8, "orePerDrone": 2, "dronePriceMultiplier": 10, "startDronePrice": 100},
