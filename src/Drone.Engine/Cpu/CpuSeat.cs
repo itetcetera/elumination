@@ -379,9 +379,22 @@ public sealed class CpuSeat : ISeat
         }
         else
         {
-            // Ore and exports have no use to a player: sell them all, the store buys at the bottom.
-            plan.Side = held > 0 ? Side.Sell : Side.Buy;
-            plan.Units = held;
+            // Ore and exports: sell them all at a good price (the store buys at the bottom). At a low
+            // price (exports in the bottom of their band, often; ore below its sell-all price) hold
+            // them, selling only enough to bring cash up to a target, as the original did with $1000.
+            var gs = game.Settings.Goods.Of(a.Good);
+            bool low = a.Good.IsExport()
+                ? a.StartPrice < gs.RandomMin + c.ExportHoardBelow * (gs.RandomMax - gs.RandomMin) && game.CpuRng.Chance(c.ExportHoardChance)
+                : a.StartPrice < c.OreSellAllFrom;
+            int units = held;
+            if (low)
+            {
+                int toCash = me.Cash >= c.SellToCash ? 0 : (int)Math.Ceiling((c.SellToCash - me.Cash) / (double)Math.Max(1, a.Bottom));
+                int overCap = gs.HoldCap > 0 ? Math.Max(0, held - gs.HoldCap) : 0;
+                units = Math.Min(held, Math.Max(toCash, overCap));
+            }
+            plan.Side = units > 0 ? Side.Sell : Side.Buy;
+            plan.Units = units;
             plan.Limit = a.Bottom;
         }
         plan.Start = plan.Side == Side.Buy ? me.Held[(int)a.Good] : me.Held[(int)a.Good];

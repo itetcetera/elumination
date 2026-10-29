@@ -178,9 +178,9 @@ public class GameTests
         var game = TestGames.New(rounds: 18, setup: TestGames.Cpus(4, "sprinter", "broker"));
         var sprinter = game.Players.Single(p => p.SpeciesId == "sprinter");
         var broker = game.Players.Single(p => p.SpeciesId == "broker");
-        Assert.Equal(6, game.FoodNeed(broker, 6));
-        Assert.Equal(8, game.FoodNeed(broker, 7));
-        Assert.Equal(10, game.FoodNeed(broker, 13));
-        Assert.Equal(8, game.FoodNeed(sprinter, 1));
+        Assert.Equal(7, game.FoodNeed(broker, 6));
+        Assert.Equal(9, game.FoodNeed(broker, 7));
+        Assert.Equal(11, game.FoodNeed(broker, 13));
+        Assert.Equal(9, game.FoodNeed(sprinter, 1));
     }
 }

@@ -10,7 +10,7 @@
     "roundChoices": [12, 18, 24],
     "ticksPerSecond": 60,
     "roundScaling": "stretch",
-    "foodNeedByThird": [6, 8, 10],
+    "foodNeedByThird": [7, 9, 11],
     "helionEnabled": true,
     "speciesEnabled": true,
     "landAuctionMode": "live"
@@ -117,7 +117,7 @@
     "scaleStep": 3,
     "scaleBonus": 2,
     "learningCap": 2,
-    "learningBonus": 2,
+    "learningBonus": 1,
     "miningSwitchDivisor": 2,
     "luckSpread": 2.0,
     "maxOutput": 20,
@@ -159,7 +159,7 @@
   "roundEvents": {
     "cards": {
       "pest": 3, "pirates": 2, "acidRain": 3, "quake": 3, "sunspots": 3, "meteor": 2, "radiation": 2, "storeFire": 2,
-      "iceRaiders": 1, "comet": 2, "supplyShip": 2, "malfunction": 2
+      "iceRaiders": 2, "comet": 2, "supplyShip": 2, "malfunction": 2
     },
     "pestPlotsPer44": 1,
     "radiationDronesPer44": 1,
@@ -231,6 +231,10 @@
     "sellerMinUnder": 0.1,
     "concedeShare": 0.7,
     "huntSideRewards": true,
+    "exportHoardBelow": 0.35,
+    "exportHoardChance": 0.8,
+    "oreSellAllFrom": 52,
+    "sellToCash": 2000,
     "glimmerHuntSeconds": 10,
     "glimmerReactSeconds": 0.4,
     "assayStopAtHigh": 3,

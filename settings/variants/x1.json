@@ -15,5 +15,5 @@
   "auction": {"energyLineExtra": 1, "firstUnitSeconds": 0.2, "minUnitSeconds": 0.0333, "unitSpeedUp": 0.0167},
   "scoring": {"plotValue": 500, "colonyStep": 20000, "colonyMinimum": 10000},
   "species": {"sprinter": {"extraFoodNeed": 1}, "broker": {"cashDelta": -200}, "prospector": {"foodLoss": 1, "foodLossFrom": 3}, "engineer": {"freeEnergy": 1, "droneSurcharge": 40}},
-  "cpu": {"minJobGain": 2, "draftDistanceCost": 5, "landReserve": 200, "landReserveRandom": 256, "goodsReserveExtra": 75}
+  "cpu": {"sellToCash": 1000, "minJobGain": 2, "draftDistanceCost": 5, "landReserve": 200, "landReserveRandom": 256, "goodsReserveExtra": 75}
 }

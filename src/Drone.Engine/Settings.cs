@@ -503,6 +503,13 @@ public sealed class CpuSettings
     public required double ConcedeShare { get; init; }
     /// <summary>Hunt the Glimmer / supply crate when it pays better than the pub.</summary>
     public required bool HuntSideRewards { get; init; }
+    /// <summary>Holding exports and ore: an export priced in the bottom ExportHoardBelow of its band
+    /// is held with ExportHoardChance, ore below OreSellAllFrom always; a held good is sold only to
+    /// bring cash up to SellToCash (and above its hold cap).</summary>
+    public required double ExportHoardBelow { get; init; }
+    public required double ExportHoardChance { get; init; }
+    public required int OreSellAllFrom { get; init; }
+    public required int SellToCash { get; init; }
     /// <summary>Glimmer: the longest a CPU hunts, and how long it takes to react when it shows.</summary>
     public required double GlimmerHuntSeconds { get; init; }
     public required double GlimmerReactSeconds { get; init; }
