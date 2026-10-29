@@ -35,7 +35,7 @@
   },
   "start": { "cash": 2000, "cpuCash": 2400, "food": 8, "energy": 4 },
   "store": {
-    "food": 16, "energy": 16, "ore": 16,
+    "food": 16, "energy": 16, "ore": 16, "energyReserveDrones": 4, "energyPriceDrop": 4,
     "dronesPer44Plots": 14,
     "turnFlipDronesPer44Plots": 8,
     "orePerDrone": 4,

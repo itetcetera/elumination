@@ -204,6 +204,11 @@ public sealed class StoreSettings
     public required int Food { get; init; }
     public required int Energy { get; init; }
     public required int Ore { get; init; }
+    /// <summary>The store aims to hold enough energy to run this many drones. Below that, the missing
+    /// energy adds to demand when pricing energy; at or above it, the energy price drops by
+    /// EnergyPriceDrop a round down to the floor. 0 = off (supply and demand only).</summary>
+    public double EnergyReserveDrones { get; init; }
+    public int EnergyPriceDrop { get; init; }
     /// <summary>Drone stock at the start and the store's cap, per 44 plots (original 14).</summary>
     public required double DronesPer44Plots { get; init; }
     /// <summary>Turn order flips when the store holds fewer drones than this, per 44 plots (original 8).</summary>

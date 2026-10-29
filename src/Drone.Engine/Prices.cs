@@ -31,7 +31,14 @@ public static class Prices
             energySupply += x - x / 4 + p.Produced[(int)Good.Energy];
             energyDemand += need;
         }
-        store.Price[(int)Good.Energy] = SupplyDemand(s, s.Energy, store.Price[(int)Good.Energy], energyDemand, energySupply, null);
+        var st = game.Settings.Store;
+        int reserve = (int)Math.Ceiling(st.EnergyReserveDrones * game.Settings.Production.EnergyPerDrone);
+        int stock = store.Stock[(int)Good.Energy];
+        if (reserve > 0 && stock >= reserve)
+            // The store has its reserve: the price eases off toward the floor.
+            store.Price[(int)Good.Energy] = Math.Max(s.Energy.MinPrice, store.Price[(int)Good.Energy] - st.EnergyPriceDrop);
+        else
+            store.Price[(int)Good.Energy] = SupplyDemand(s, s.Energy, store.Price[(int)Good.Energy], energyDemand + Math.Max(0, reserve - stock), energySupply, null);
 
         // Ore: the store's stock (half its ore plus its drones) against the drones the colony wants.
         double scale = game.PlotScale;

@@ -173,6 +173,10 @@ At the x2 scale:
 - 2 raid cards per export (pirates for crystite, ice raiders for Helion).
 - CPU: holds exports priced in the bottom 35% of their band (80% of the time) and ore below 52,
   selling only to bring cash up to $2,000; keeps money to develop a plot it bids on.
+- Store energy reserve: the store aims to hold enough energy for 4 drones (8 units). Below that,
+  the missing energy adds to demand when the energy price is set; once it holds the reserve, the
+  price drops $4 a round down to the floor (store.energyReserveDrones, store.energyPriceDrop; off
+  in the original variant). Marcus chose this over a store power plant.
 
 All-Settler CPU games, 1,000 each: exports take 36% / 54% / 53% of the winner's wealth at 12 / 18 /
 24 rounds; the half-time leader wins 47% at every length; lead changes 3.8 / 4.3 / 4.1.
@@ -189,9 +193,9 @@ rounds. Each target holds at every length.
 | Final margin (winner over second) | 10-15% | 14% / 16% / 22% |
 | Winner's wealth from exports | 30-55% | 31% / 55% / 50% |
 | Middle-third food price | 60-100 | 66 / 75 / 66 |
-| Middle-third energy price | 40-70 | 37 / 47 / 40 |
+| Middle-third energy price | 40-70 | 43 / 49 / 45 (with the store reserve) |
 | Starving turns per game | at most 1.5 | 1.0 / 0.9 / 1.5 |
-| Energy-short plots per player per game | at most 2 | 2.2 / 5.8 / 8.1 |
+| Energy-short plots per player per game | at most 2 | 1.8 / 3.7 / 6.1 (with the store reserve) |
 | First Founder | 85-90% of games | 99.5% / 97.1% / 96.7% |
 
 First Founder depends only on the colony total, so it is set last, through the rating thresholds.
