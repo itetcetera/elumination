@@ -50,7 +50,8 @@ public static class Scoring
         var s = game.Settings.Scoring;
         double scale = game.PlotScale * game.Rounds / 12.0;
         if (colony < s.ColonyMinimum * scale) return 0;
-        return Math.Min(s.MaxRating, (int)Math.Round(colony / (s.ColonyStep * scale), MidpointRounding.ToZero));
+        int step = s.ColonySteps.FirstOrDefault(x => x.Rounds == game.Rounds)?.Step ?? s.ColonyStep;
+        return Math.Min(s.MaxRating, (int)Math.Round(colony / (step * scale), MidpointRounding.ToZero));
     }
 
     public static void End(Game game)

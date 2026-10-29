@@ -196,6 +196,7 @@
     "finalRepricing": true,
     "colonyStep": 40000,
     "colonyMinimum": 20000,
+    "colonySteps": [{ "rounds": 12, "step": 47500 }, { "rounds": 18, "step": 44000 }],
     "maxRating": 6,
     "founderRating": 3,
     "verdicts": [

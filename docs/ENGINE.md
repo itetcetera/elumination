@@ -196,15 +196,20 @@ holds at both lengths.
 
 | Target | Bar | Now (12 / 18) |
 |---|---|---|
-| Half-time leader wins | at most 55% | 53% / 54% |
-| Lead changes | at least 3.5 | 3.3 / 4.1 |
-| Final margin (winner over second) | 10-15% | 14% / 15.4% |
-| Winner's wealth from exports | 30-55% | 25% / 51% |
+| Half-time leader wins | at most 55% | 54% / 54% |
+| Lead changes | at least 3.5 (12 rounds: 3.3 is fine) | 3.3 / 4.1 |
+| Final margin (winner over second) | 10-15% (18 rounds: 15.5% is fine) | 14% / 15.5% |
+| Winner's wealth from exports | 30-55%, not tuned for (a play-style matter) | 29% / 57% |
 | Middle-third food price | 60-100 | 64 / 62 |
 | Middle-third energy price | 35-60 | 35 / 39 |
 | Starving turns per game | at most 1.5 | 0.7 / 0.6 |
-| Energy-short plots per player per game | at most 2 | 0.9 / 2.7 |
-| First Founder | 85-90% of games | 99.2% / 96.0% |
+| Energy-short plots per player per game | at most 2 (18 rounds: 2.7 accepted) | 0.9 / 2.7 |
+| First Founder | 85-90% of games | 87.5% / 86.4% |
+
+Marcus accepted the remaining small misses on 2026-10-29. First Founder is set through the colony
+rating step per game length (scoring.colonySteps: $47,500 at 12 rounds, $44,000 at 18; the step is
+still scaled by plots and rounds). Ratings now gather at 3: at 12 rounds 79% of colonies rate 3 and
+8% rate 4.
 
 Energy price and shortages pull against each other: energy is only dear when players run short.
 Marcus (2026-10-29) chose a CPU that minds its own energy on a quarter of its turns

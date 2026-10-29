@@ -457,6 +457,15 @@ public sealed class ScoringSettings
     /// <summary>After the last auctions, food, energy and ore are repriced once more for a month that
     /// never comes: the colony's need against the colony's stock (Marcus, 2026-10-29).</summary>
     public bool FinalRepricing { get; init; }
+    /// <summary>ColonyStep for a given game length, where the two lengths need their own (Marcus wants
+    /// First Founder in 85-90% of games at each length).</summary>
+    public ColonyStepFor[] ColonySteps { get; init; } = [];
+}
+
+public sealed class ColonyStepFor
+{
+    public required int Rounds { get; init; }
+    public required int Step { get; init; }
 }
 
 /// <summary>A species' ability and its cost, all in whole amounts (Marcus, 2026-10-28).</summary>
