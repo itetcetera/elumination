@@ -258,8 +258,8 @@ public class ProductionTests
         foreach (var p in neighbours.Append(centre)) { p.Owner = me.Seat; p.Drone = Good.Energy; }
         me.Held[(int)Good.Energy] = 0;
         var prod = Production.Run(game);
-        // Base 6, +2 for 4 energy drones (scale step 3), +1 x 2 capped learning.
-        Assert.Equal(6 + 2 + 2, prod.Output[centre.Index]);
+        // Base 5, +2 for 4 energy drones (scale step 3), +1 x 2 capped learning.
+        Assert.Equal(5 + 2 + 2, prod.Output[centre.Index]);
     }
 
     [Fact]

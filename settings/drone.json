@@ -109,12 +109,12 @@
     "crateGoods": [4, 6, 8, 10]
   },
   "production": {
-    "plain": [4, 6, 2],
+    "plain": [4, 5, 2],
     "mountain": [2, 2, 0],
     "mountainOreBase": 2,
     "orePerUnit": 2,
     "water": [8, 4, 0],
-    "bankFoodBonus": 2,
+    "bankFoodBonus": 0,
     "scaleStep": 3,
     "scaleBonus": 2,
     "learningCap": 2,
