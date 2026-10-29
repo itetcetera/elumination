@@ -46,7 +46,7 @@ public sealed class CpuSeat : ISeat
         if (plot.Assayed) return plot.Deposit(good);
         int best = 0;
         foreach (var q in game.Map.Plots)
-            if (q.Assayed && q.Deposit(good) > 0)
+            if (q.Assayed && q.Deposit(good) > 0 && game.Map.Distance(plot, q) <= game.Settings.Map.SeedRadius)
                 best = Math.Max(best, q.Deposit(good) - game.Map.Distance(plot, q) * game.Settings.Map.SeedDropPerHex);
         return best;
     }

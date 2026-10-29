@@ -25,6 +25,7 @@
     "mountainUnitWeights": [0.286, 0.428, 0.286],
     "seedLevel": 6,
     "seedDropPerHex": 2,
+    "seedRadius": 1,
     "helionSeedMinDistance": 3,
     "lakeMinDistance": 2,
     "outpostRowShares": [0.2, 0.8]

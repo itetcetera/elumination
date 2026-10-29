@@ -173,6 +173,8 @@ public sealed class MapSettings
     public required int SeedLevel { get; init; }
     /// <summary>Deposit levels drop this much per hex away from a seed.</summary>
     public required int SeedDropPerHex { get; init; }
+    /// <summary>Deposits reach this many hexes from their seed (high at the seed, then lower).</summary>
+    public required int SeedRadius { get; init; }
     /// <summary>Helion seeds keep at least this hex distance from crystite seeds (3 = the seed plots
     /// and their neighbours never overlap, the outer rings may).</summary>
     public required int HelionSeedMinDistance { get; init; }

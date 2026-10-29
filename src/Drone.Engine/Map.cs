@@ -73,6 +73,8 @@ public sealed class Map
     public Plot NearestTown(Plot p) => Outposts.Prepend(Store).MinBy(t => Distance(p, t))!;
 
     public int SeedDropPerHex { get; init; } = 1;
+    /// <summary>How far a deposit spreads from its seed, in hexes.</summary>
+    public int SeedRadius { get; init; } = int.MaxValue;
 
     public void SetDepositsFromSeeds(IEnumerable<Plot> seeds, int level, bool helion)
     {
@@ -86,7 +88,9 @@ public sealed class Map
         foreach (var p in Plots)
         {
             if (p.IsWater || p.IsTown) continue;
-            int v = Math.Max(0, level - Distance(p, seed) * SeedDropPerHex);
+            int d = Distance(p, seed);
+            if (d > SeedRadius) continue;
+            int v = Math.Max(0, level - d * SeedDropPerHex);
             if (helion) p.Helion = Math.Max(p.Helion, v);
             else p.Crystite = Math.Max(p.Crystite, v);
         }
@@ -138,7 +142,7 @@ public static class MapGen
             placedLakes.Add(lake);
         }
 
-        var map = new Map(cols, rows, plots) { SeedDropPerHex = s.Map.SeedDropPerHex };
+        var map = new Map(cols, rows, plots) { SeedDropPerHex = s.Map.SeedDropPerHex, SeedRadius = s.Map.SeedRadius };
         foreach (var p in plots)
         {
             bool mineable = !p.IsWater && !p.IsTown;
