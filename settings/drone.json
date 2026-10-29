@@ -10,7 +10,7 @@
     "roundChoices": [12, 18, 24],
     "ticksPerSecond": 60,
     "roundScaling": "stretch",
-    "foodNeedByThird": [7, 9, 11],
+    "foodNeedByThird": [6, 8, 10],
     "helionEnabled": true,
     "speciesEnabled": true,
     "landAuctionMode": "live"
