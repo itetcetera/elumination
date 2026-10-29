@@ -63,3 +63,9 @@ docker build -t drone . && docker run -p 8080:8080 drone
 
 One image holds the server, the settings and the browser client. Rooms live in memory: a restart
 ends the games under way.
+
+The client in `client/` is a plain playtest client (HTML, CSS and one script, no build step). One
+player starts a room and shares the invite link; up to four people join, pick a species, and the host
+starts. CPUs take the empty seats. In auctions, hold the Up and Down buttons or the arrow keys. In
+your turn, click the map to walk (the store or an outpost takes you into town), and use the buttons
+for everything else; actions queue up and happen in order.

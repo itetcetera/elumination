@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DRONE</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- A plain playtest client: no build step, everything the server sends drawn as it is. -->
+  <header>
+    <h1>DRONE <span class="sub">colonising ELUM</span></h1>
+    <div id="status"></div>
+  </header>
+
+  <section id="join" class="screen">
+    <h2>Join a colony</h2>
+    <label>Your name <input id="name" maxlength="16" autocomplete="nickname"></label>
+    <div class="row">
+      <button id="create">Start a new room</button>
+      <span>or</span>
+      <input id="code" maxlength="6" placeholder="CODE" class="code">
+      <button id="joinBtn">Join</button>
+    </div>
+    <p id="joinError" class="error"></p>
+  </section>
+
+  <section id="lobby" class="screen hidden">
+    <h2>Room <span id="roomCode" class="code"></span></h2>
+    <p>Invite link: <a id="invite"></a></p>
+    <h3>Players</h3>
+    <ul id="members"></ul>
+    <p class="hint">Empty seats are filled by CPUs when the host starts.</p>
+    <h3>Your species</h3>
+    <div id="species"></div>
+    <h3>Rules</h3>
+    <div id="options"></div>
+    <button id="start" class="hidden">Start the game</button>
+    <p id="lobbyError" class="error"></p>
+  </section>
+
+  <section id="game" class="screen hidden">
+    <div class="left">
+      <div id="banner"></div>
+      <svg id="map"></svg>
+      <div id="controls"></div>
+    </div>
+    <div class="right">
+      <table id="players"></table>
+      <table id="store"></table>
+      <h3>What happened</h3>
+      <ol id="log"></ol>
+    </div>
+  </section>
+
+  <script src="/vendor/signalr.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
