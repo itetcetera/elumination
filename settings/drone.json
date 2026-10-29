@@ -34,7 +34,7 @@
   },
   "start": { "cash": 2000, "cpuCash": 2400, "food": 8, "energy": 4 },
   "store": {
-    "food": 16, "energy": 16, "ore": 16, "energyReserveDrones": 4, "energyPriceDrop": 4,
+    "food": 16, "energy": 16, "ore": 16,
     "dronesPer44Plots": 14,
     "turnFlipDronesPer44Plots": 8,
     "orePerDrone": 4,
@@ -196,7 +196,7 @@
     "finalRepricing": true,
     "colonyStep": 40000,
     "colonyMinimum": 20000,
-    "colonySteps": [{ "rounds": 12, "step": 47500 }, { "rounds": 18, "step": 44000 }],
+    "colonySteps": [{ "rounds": 12, "step": 48000 }, { "rounds": 18, "step": 45500 }],
     "maxRating": 6,
     "founderRating": 3,
     "verdicts": [

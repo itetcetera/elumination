@@ -13,7 +13,7 @@
   "personalEvents": {"unit": 25, "careFood": 3, "careEnergy": 2, "oreGift": 2},
   "roundEvents": {"acidFoodIn": 4, "acidEnergyIn": -2, "acidFoodOut": 1, "acidEnergyOut": -1, "sunspotEnergy": 3, "meteorLevel": 4, "meteorMaxBefore": 2, "supplyShipFood": 8, "supplyShipEnergy": 8},
   "auction": {"energyLineExtra": 1, "firstUnitSeconds": 0.2, "minUnitSeconds": 0.0333, "unitSpeedUp": 0.0167},
-  "scoring": {"plotValue": 500, "colonyStep": 20000, "colonyMinimum": 10000, "colonySteps": [{"rounds": 12, "step": 23750}, {"rounds": 18, "step": 22000}]},
+  "scoring": {"plotValue": 500, "colonyStep": 20000, "colonyMinimum": 10000, "colonySteps": [{"rounds": 12, "step": 24000}, {"rounds": 18, "step": 22750}]},
   "species": {"sprinter": {"extraFoodNeed": 1}, "broker": {"cashDelta": -200}, "prospector": {"foodLoss": 1, "foodLossFrom": 3}, "engineer": {"freeEnergy": 1, "droneSurcharge": 40}},
   "cpu": {"sellToCash": 1000, "minJobGain": 2, "draftDistanceCost": 5, "landReserve": 200, "landReserveRandom": 256, "goodsReserveExtra": 75}
 }

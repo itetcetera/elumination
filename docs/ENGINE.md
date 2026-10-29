@@ -173,10 +173,8 @@ At the x2 scale:
 - 2 raid cards per export (pirates for crystite, ice raiders for Helion).
 - CPU: holds exports priced in the bottom 35% of their band (80% of the time) and ore below 52,
   selling only to bring cash up to $2,000; keeps money to develop a plot it bids on.
-- Store energy reserve: the store aims to hold enough energy for 4 drones (8 units). Below that,
-  the missing energy adds to demand when the energy price is set; once it holds the reserve, the
-  price drops $4 a round down to the floor (store.energyReserveDrones, store.energyPriceDrop; off
-  in the original variant). Marcus chose this over a store power plant.
+- Store energy reserve: tried on 2026-10-29 and cut the same day (Marcus: too much rule overhead
+  to explain for what it did, about $2 on the mid-game energy price and a quarter fewer shortages).
 - No end-of-game math (Marcus, 2026-10-29): the last month prices and trades as if another month
   followed. After the last auctions, food, energy and ore are repriced once more for that month
   from the colony's need against the colony's stock (players' goods after spoilage plus the
@@ -196,18 +194,20 @@ holds at both lengths.
 
 | Target | Bar | Now (12 / 18) |
 |---|---|---|
-| Half-time leader wins | at most 55% | 54% / 54% |
-| Lead changes | at least 3.5 (12 rounds: 3.3 is fine) | 3.3 / 4.1 |
-| Final margin (winner over second) | 10-15% (18 rounds: 15.5% is fine) | 14% / 15.5% |
-| Winner's wealth from exports | 30-55%, not tuned for (a play-style matter) | 29% / 57% |
-| Middle-third food price | 60-100 | 64 / 62 |
-| Middle-third energy price | 35-60 | 35 / 39 |
-| Starving turns per game | at most 1.5 | 0.7 / 0.6 |
-| Energy-short plots per player per game | at most 2 (18 rounds: 2.7 accepted) | 0.9 / 2.7 |
-| First Founder | 85-90% of games | 87.5% / 86.4% |
+| Half-time leader wins | at most 55% | 52% / 51% |
+| Lead changes | at least 3.5 (12 rounds: 3.3 is fine) | 3.4 / 4.1 |
+| Final margin (winner over second) | 10-15% (18 rounds: 15.5% is fine) | 13.5% / 15.0% |
+| Winner's wealth from exports | 30-55%, not tuned for (a play-style matter) | 31% / 59% |
+| Middle-third food price | 60-100 | 62 / 62 |
+| Middle-third energy price | 35-60 | 32 / 37 |
+| Starving turns per game | at most 1.5 | 0.8 / 0.6 |
+| Energy-short plots per player per game | at most 2 (18 rounds: 2.7 accepted) | 1.3 / 3.6 |
+| First Founder | 85-90% of games | 89.8% / 87.1% |
+
+(1,000 games each, seed 9001, after the store energy reserve was cut.)
 
 Marcus accepted the remaining small misses on 2026-10-29. First Founder is set through the colony
-rating step per game length (scoring.colonySteps: $47,500 at 12 rounds, $44,000 at 18; the step is
+rating step per game length (scoring.colonySteps: $48,000 at 12 rounds, $45,500 at 18; the step is
 still scaled by plots and rounds). Ratings now gather at 3: at 12 rounds 79% of colonies rate 3 and
 8% rate 4.
 

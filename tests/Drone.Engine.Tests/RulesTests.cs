@@ -188,28 +188,6 @@ public class GameTests
     }
 
     [Fact]
-    public void Store_energy_price_eases_once_it_holds_its_reserve_and_rises_below_it()
-    {
-        // Reserve: 4 drones x 2 energy = 8 units.
-        var game = TestGames.New();
-        game.Store.Price[(int)Good.Energy] = 50;
-        game.Store.Stock[(int)Good.Energy] = 8;
-        Prices.BeforeAuctions(game);
-        Assert.Equal(46, game.Store.Price[(int)Good.Energy]);
-
-        // Below the reserve the missing energy adds to demand: dearer than with no reserve at all.
-        int PriceWithEmptyStore(Settings s)
-        {
-            var g = TestGames.New(s);
-            g.Store.Price[(int)Good.Energy] = 50;
-            g.Store.Stock[(int)Good.Energy] = 0;
-            Prices.BeforeAuctions(g);
-            return g.Store.Price[(int)Good.Energy];
-        }
-        Assert.True(PriceWithEmptyStore(TestGames.Defaults) > PriceWithEmptyStore(TestGames.Defaults.With("store.energyReserveDrones=0")));
-    }
-
-    [Fact]
     public void The_last_round_prices_food_as_if_another_month_followed()
     {
         var game = TestGames.New(rounds: 12, setup: TestGames.Cpus(4, "settler"));
