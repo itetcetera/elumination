@@ -109,7 +109,7 @@ These are starting points in the settings, to confirm or change:
   per drone; Survivor's money and goods events are halved, bad and good alike; Settler is the
   normal species with no ability and no cost. The draft-first ability and a land surcharge are
   still in the engine (`draftFirst`, `landSurcharge`) for sweeps.
-- Helion price 80-120 (crystite 50-149). Exports don't spoil (Marcus, 2026-10-29); the hold cap
+- Helion price 75-100 (Marcus, 2026-10-29; was 80-120) (crystite 50-149). Exports don't spoil (Marcus, 2026-10-29); the hold cap
   limits hoarding. If a cost is ever needed, it will be called storage costs.
 - New events per 11 rounds: Ice raiders 1 (take half of held Helion), Comet 2, Supply ship 2
   (+8 food, +8 energy to the store), Drone malfunction 2.

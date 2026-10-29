@@ -189,11 +189,21 @@ public sealed class CpuSeat : ISeat
         if (t.TimeLeft < c.MinJobSeconds) return false;
         int dronePrice = game.DronePriceFor(me);
         (Plot plot, Good job, double gain, double time, bool empty)? best = null;
+        // Like a sensible player, it keeps its own drones making enough food and energy for what it
+        // runs (give or take CoverSlack units it expects to buy) before anything else.
+        Good? must = null;
+        if (!t.Starving)
+        {
+            int next = Math.Min(game.Round + 1, game.Rounds);
+            if (c.CoverFood && ProducedEstimate(game, me, Good.Food) + c.CoverSlack < game.FoodNeed(me, next)) must = Good.Food;
+            else if (c.CoverEnergy && ProducedEstimate(game, me, Good.Energy) + c.CoverSlack < game.EnergyNeed(me)) must = Good.Energy;
+        }
         foreach (var plot in game.PlotsOf(me))
         foreach (var job in Engine.Goods.All)
         {
             if (_tried.Contains(plot.Index) || plot.Drone == job) continue;
             if (t.Starving && job != Good.Food) continue;
+            if (must is { } m && (job != m || plot.Drone == Good.Food || plot.Drone == Good.Energy)) continue;
             if (job == Good.Helion && !game.Settings.Game.HelionEnabled) continue;
             if (Production.Base(game.Settings, plot, job) == null) continue;
             double value = Expected(game, me, plot, job) * UnitValue(game, me, job) - EnergyCost(game, me, job);
@@ -203,7 +213,7 @@ public sealed class CpuSeat : ISeat
                 value -= value * (1 - 1.0 / game.Settings.Production.MiningSwitchDivisor) / Math.Max(1, game.Rounds - game.Round + 1);
             int outfit = game.Settings.Goods.Of(job).OutfitCost;
             double gainUnits = (value - current) / Math.Max(1, UnitValue(game, me, job));
-            if (c.MinJobValue > 0 ? value - current < c.MinJobValue : gainUnits < c.MinJobGain) continue;
+            if (must == null && (c.MinJobValue > 0 ? value - current < c.MinJobValue : gainUnits < c.MinJobGain)) continue;
             var town = game.Map.NearestTown(plot);
             double time;
             bool empty = plot.Drone == null;

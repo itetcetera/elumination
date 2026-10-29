@@ -501,6 +501,11 @@ public sealed class CpuSettings
     /// <summary>Unit value bonuses when short of food or energy.</summary>
     public required int ShortBonus { get; init; }
     public required int NoneYetBonus { get; init; }
+    /// <summary>Before other jobs, a CPU puts drones on food / energy until its own drones make the
+    /// need, less CoverSlack units.</summary>
+    public bool CoverFood { get; init; }
+    public bool CoverEnergy { get; init; }
+    public int CoverSlack { get; init; }
     /// <summary>Land: cash a CPU keeps after buying: a drone and outfit for the plot + Reserve +
     /// random[0, ReserveRandom). With OverreachChance it keeps only half the random part.</summary>
     public required int LandReserve { get; init; }
