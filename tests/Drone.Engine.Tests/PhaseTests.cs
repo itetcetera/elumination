@@ -361,8 +361,9 @@ public class GoodsAuctionTests
         GoodsAuction.Prepare(game, Good.Food);
         // 26 - 6 used = 20, half spoils = 10.
         Assert.Equal(10, p.Held[(int)Good.Food]);
+        // Exports don't spoil; the hold cap (50) keeps the rest.
         p.Held[(int)Good.Crystite] = 60;
         GoodsAuction.Prepare(game, Good.Crystite);
-        Assert.Equal(48, p.Held[(int)Good.Crystite]);
+        Assert.Equal(50, p.Held[(int)Good.Crystite]);
     }
 }

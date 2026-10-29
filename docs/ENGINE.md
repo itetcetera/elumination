@@ -109,7 +109,8 @@ These are starting points in the settings, to confirm or change:
   per drone; Survivor's money and goods events are halved, bad and good alike; Settler is the
   normal species with no ability and no cost. The draft-first ability and a land surcharge are
   still in the engine (`draftFirst`, `landSurcharge`) for sweeps.
-- Export spoilage: crystite 20%, Helion 10% a round; Helion price 80-120 (crystite 50-149).
+- Helion price 80-120 (crystite 50-149). Exports don't spoil (Marcus, 2026-10-29); the hold cap
+  limits hoarding. If a cost is ever needed, it will be called storage costs.
 - New events per 11 rounds: Ice raiders 1 (take half of held Helion), Comet 2, Supply ship 2
   (+8 food, +8 energy to the store), Drone malfunction 2.
 - Learning curve cap 2 and output cap 10 (original 1 and 8).
@@ -159,3 +160,19 @@ The turn is 50 seconds (Marcus, 2026-10-28; the original's 47.13 stays in the `o
 First finer species try under x2 (2,000 games each): the Sprinter at +2 food (the same cost as
 today) wins 21% at 12 rounds and 28% at 24; at +1 food it wins 23% and 28%. Half the food cost
 helps it in short games and changes little in long ones, where its speed already pays.
+
+## Rules decided 2026-10-28/29 (Marcus)
+
+At the x2 scale:
+
+- A plot switched to a mining job makes half its output that round (`production.miningSwitchDivisor`).
+- Deposits spread only to touching plots: high at the seed, medium next to it (`map.seedRadius` 1).
+- Learning curve: +1 per matching neighbour; food and energy +1 per 2 (`farmNeighboursPerBonus`).
+- No river-bank food bonus; plain energy plots make 5 (was 6).
+- Ore, crystite and Helion hold cap 50; food and energy have spoilage only, exports neither.
+- 2 raid cards per export (pirates for crystite, ice raiders for Helion).
+- CPU: holds exports priced in the bottom 35% of their band (80% of the time) and ore below 52,
+  selling only to bring cash up to $2,000; keeps money to develop a plot it bids on.
+
+All-Settler CPU games, 1,000 each: exports take 36% / 54% / 53% of the winner's wealth at 12 / 18 /
+24 rounds; the half-time leader wins 47% at every length; lead changes 3.8 / 4.3 / 4.1.
