@@ -189,15 +189,20 @@ holds at both lengths.
 
 | Target | Bar | Now (12 / 18) |
 |---|---|---|
-| Half-time leader wins | at most 55% | 48% / 54% |
-| Lead changes | at least 3.5 | 3.4 / 4.1 |
-| Final margin (winner over second) | 10-15% | 14% / 17% |
-| Winner's wealth from exports | 30-55% | 31% / 54% |
-| Middle-third food price | 60-100 | 67 / 74 |
-| Middle-third energy price | 40-70 | 42 / 51 |
-| Starving turns per game | at most 1.5 | 1.0 / 1.1 |
-| Energy-short plots per player per game | at most 2 | 1.7 / 4.0 |
-| First Founder | 85-90% of games | 99.4% / 96.0% |
+| Half-time leader wins | at most 55% | 53% / 54% |
+| Lead changes | at least 3.5 | 3.3 / 4.1 |
+| Final margin (winner over second) | 10-15% | 14% / 15.4% |
+| Winner's wealth from exports | 30-55% | 25% / 51% |
+| Middle-third food price | 60-100 | 64 / 62 |
+| Middle-third energy price | 35-60 | 35 / 39 |
+| Starving turns per game | at most 1.5 | 0.7 / 0.6 |
+| Energy-short plots per player per game | at most 2 | 0.9 / 2.7 |
+| First Founder | 85-90% of games | 99.2% / 96.0% |
+
+Energy price and shortages pull against each other: energy is only dear when players run short.
+Marcus (2026-10-29) chose a CPU that minds its own energy on a quarter of its turns
+(cpu.coverEnergy, cpu.coverEnergyChance 0.25; off in the original variant, which still makes 83.6k
+against the port's 86.9k) and an energy band of 35-60.
 
 First Founder depends only on the colony total, so it is set last, through the rating thresholds.
 Prices are measured over the middle third of the rounds (Marcus): late in the game every player covers
