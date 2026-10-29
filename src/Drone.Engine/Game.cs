@@ -109,10 +109,11 @@ public sealed class Game
 
     public bool LastRound => Round >= Rounds;
 
-    /// <summary>Food each player needs for a round (thirds of the game, I2), plus species need.</summary>
+    /// <summary>Food each player needs for a round (thirds of the game, I2), plus species need. The
+    /// round after the last is priced as if the game went on (Marcus: no end-of-game math).</summary>
     public int FoodNeed(Player p, int? round = null)
     {
-        int r = Math.Clamp(round ?? Round, 1, Rounds);
+        int r = Math.Clamp(round ?? Round, 1, Rounds + 1);
         var g = Settings.Game;
         if (g.FoodNeedPerDrone > 0)
             return g.FoodNeedByThird[0] + g.FoodNeedPerDrone * Map.Plots.Count(x => x.Owner == p.Seat && x.Drone is { } d && d != Good.Food) + p.Species.ExtraFoodNeed;

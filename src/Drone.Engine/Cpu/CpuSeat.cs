@@ -23,7 +23,7 @@ public sealed class CpuSeat : ISeat
         if (good == Good.Food)
         {
             int prod = ProducedEstimate(game, me, Good.Food);
-            if (me.Held[(int)Good.Food] + prod < game.FoodNeed(me, Math.Min(game.Round + 1, game.Rounds))) price += c.ShortBonus;
+            if (me.Held[(int)Good.Food] + prod < game.FoodNeed(me, game.Round + 1)) price += c.ShortBonus;
             else if (prod == 0) price += c.NoneYetBonus;
         }
         else if (good == Good.Energy)
@@ -197,7 +197,7 @@ public sealed class CpuSeat : ISeat
         Good? must = null;
         if (!t.Starving)
         {
-            int next = Math.Min(game.Round + 1, game.Rounds);
+            int next = game.Round + 1;
             if (c.CoverFood && ProducedEstimate(game, me, Good.Food) + c.CoverSlack < game.FoodNeed(me, next)) must = Good.Food;
             else if (c.CoverEnergy && _coverThisTurn && ProducedEstimate(game, me, Good.Energy) + c.CoverSlack < game.EnergyNeed(me)) must = Good.Energy;
         }
@@ -360,13 +360,8 @@ public sealed class CpuSeat : ISeat
         int held = me.Held[(int)a.Good];
         int line = a.Line[me.Seat];
         plan = new GoodsPlan();
-        if (game.LastRound)
-        {
-            // Held goods score at the current price: nothing left to gain by trading in the last round.
-            plan.Side = held > line ? Side.Sell : Side.Buy;
-            plan.Units = 0;
-        }
-        else if (a.Good is Good.Food or Good.Energy)
+        // The last round trades as any other: the game is played as if another month followed.
+        if (a.Good is Good.Food or Good.Energy)
         {
             // Energy: enough for the drones it has plus the 1 or 2 it plans to add next turn.
             int want = a.Good == Good.Energy

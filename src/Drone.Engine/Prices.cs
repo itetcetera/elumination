@@ -11,7 +11,7 @@ public static class Prices
     {
         var s = game.Settings.Goods;
         var store = game.Store;
-        int next = Math.Min(game.Round + 1, game.Rounds);
+        int next = game.Round + 1;
 
         // Food: what players will have spare after this round's need and spoilage, plus production.
         int foodSupply = store.Stock[(int)Good.Food];

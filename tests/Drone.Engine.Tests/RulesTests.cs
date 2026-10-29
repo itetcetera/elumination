@@ -208,4 +208,13 @@ public class GameTests
         }
         Assert.True(PriceWithEmptyStore(TestGames.Defaults) > PriceWithEmptyStore(TestGames.Defaults.With("store.energyReserveDrones=0")));
     }
+
+    [Fact]
+    public void The_last_round_prices_food_as_if_another_month_followed()
+    {
+        var game = TestGames.New(rounds: 12, setup: TestGames.Cpus(4, "settler"));
+        var p = game.Players[0];
+        Assert.Equal(12, game.FoodNeed(p, 12));
+        Assert.Equal(14, game.FoodNeed(p, 13));
+    }
 }

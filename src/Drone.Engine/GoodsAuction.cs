@@ -120,8 +120,8 @@ public sealed class GoodsAuction
 
     public static int NeedLine(Game game, Player p, Good good) => good switch
     {
-        // L1 fixed: the last round uses the real need lines.
-        Good.Food => game.FoodNeed(p, game.LastRound ? game.Round : game.Round + 1),
+        // The last round too uses next round's need, as if the game went on.
+        Good.Food => game.FoodNeed(p, game.Round + 1),
         Good.Energy => game.EnergyNeed(p) + game.Settings.Auction.EnergyLineExtra,
         _ => 0,
     };
