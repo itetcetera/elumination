@@ -41,7 +41,6 @@ public class MapTests
     [Theory]
     [InlineData(12, 9, 5)]
     [InlineData(18, 9, 7)]
-    [InlineData(24, 13, 7)]
     public void Map_scales_with_game_length(int rounds, int cols, int rows)
     {
         var s = TestGames.Defaults;
@@ -72,7 +71,7 @@ public class MapTests
         var s = TestGames.Defaults;
         for (ulong seed = 0; seed < 300; seed++)
         {
-            var map = MapGen.Generate(s, MapGen.SizeFor(s, 24), new Rng(seed));
+            var map = MapGen.Generate(s, MapGen.SizeFor(s, 18), new Rng(seed));
             Assert.DoesNotContain(map.Plots, p => p.Crystite >= s.Map.SeedLevel - s.Map.SeedDropPerHex && p.Helion >= s.Map.SeedLevel - s.Map.SeedDropPerHex);
         }
     }
@@ -117,7 +116,6 @@ public class GameTests
     [Theory]
     [InlineData(12)]
     [InlineData(18)]
-    [InlineData(24)]
     public void Cpu_games_finish(int rounds)
     {
         var game = TestGames.New(rounds: rounds, seed: 11).Play();
@@ -169,8 +167,12 @@ public class GameTests
     [Fact]
     public void The_deck_grows_with_the_game()
     {
-        Assert.True(TestGames.New(rounds: 24).Deck.Count > TestGames.New(rounds: 12).Deck.Count * 2 - 2);
+        Assert.True(TestGames.New(rounds: 18).Deck.Count > TestGames.New(rounds: 12).Deck.Count);
     }
+
+    [Fact]
+    public void Only_12_and_18_round_games()
+        => Assert.Throws<ArgumentException>(() => TestGames.New(rounds: 24));
 
     [Fact]
     public void Food_need_rises_by_thirds_and_with_species()

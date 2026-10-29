@@ -131,7 +131,7 @@ public sealed class Settings
 public sealed class GameSettings
 {
     public required int Players { get; init; }
-    /// <summary>Round counts the host can pick (12/18/24).</summary>
+    /// <summary>Round counts the host can pick (12/18).</summary>
     public required int[] RoundChoices { get; init; }
     public required int TicksPerSecond { get; init; }
     /// <summary>How rules written for 12 rounds read in longer games: "stretch" maps the round onto

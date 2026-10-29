@@ -7,7 +7,7 @@
 {
   "game": {
     "players": 4,
-    "roundChoices": [12, 18, 24],
+    "roundChoices": [12, 18],
     "ticksPerSecond": 60,
     "roundScaling": "stretch",
     "foodNeedByThird": [6, 8, 10],
@@ -21,8 +21,7 @@
   "map": {
     "sizes": [
       { "rounds": 12, "cols": 9,  "rows": 5, "crystiteSeeds": 3, "helionSeeds": 2, "lakes": 0, "outposts": 0 },
-      { "rounds": 18, "cols": 9,  "rows": 7, "crystiteSeeds": 4, "helionSeeds": 3, "lakes": 2, "outposts": 1 },
-      { "rounds": 24, "cols": 13, "rows": 7, "crystiteSeeds": 6, "helionSeeds": 4, "lakes": 3, "outposts": 2 }
+      { "rounds": 18, "cols": 9,  "rows": 7, "crystiteSeeds": 4, "helionSeeds": 3, "lakes": 2, "outposts": 1 }
     ],
     "mountainShare": 0.25,
     "mountainUnitWeights": [0.286, 0.428, 0.286],

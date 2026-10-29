@@ -183,20 +183,21 @@ All-Settler CPU games, 1,000 each: exports take 36% / 54% / 53% of the winner's 
 
 ## Tuning targets (Marcus, 2026-10-29)
 
-Measured on all-Settler CPU games (`--species settler,settler,settler,settler`) at 12, 18 and 24
-rounds. Each target holds at every length.
+Games are 12 or 18 rounds (Marcus dropped the 24-round option on 2026-10-29). Measured on
+all-Settler CPU games (`--species settler,settler,settler,settler`), 1,000 games each; each target
+holds at both lengths.
 
-| Target | Bar | Today (12 / 18 / 24) |
+| Target | Bar | Now (12 / 18) |
 |---|---|---|
-| Half-time leader wins | at most 55% | 49% / 55% / 53% |
-| Lead changes | at least 3.5 | 3.4 / 4.1 / 3.7 |
-| Final margin (winner over second) | 10-15% | 14% / 16% / 22% |
-| Winner's wealth from exports | 30-55% | 31% / 55% / 50% |
-| Middle-third food price | 60-100 | 66 / 75 / 66 |
-| Middle-third energy price | 40-70 | 43 / 49 / 45 (with the store reserve) |
-| Starving turns per game | at most 1.5 | 1.0 / 0.9 / 1.5 |
-| Energy-short plots per player per game | at most 2 | 1.8 / 3.7 / 6.1 (with the store reserve) |
-| First Founder | 85-90% of games | 99.5% / 97.1% / 96.7% |
+| Half-time leader wins | at most 55% | 48% / 54% |
+| Lead changes | at least 3.5 | 3.4 / 4.1 |
+| Final margin (winner over second) | 10-15% | 14% / 17% |
+| Winner's wealth from exports | 30-55% | 31% / 54% |
+| Middle-third food price | 60-100 | 67 / 74 |
+| Middle-third energy price | 40-70 | 42 / 51 |
+| Starving turns per game | at most 1.5 | 1.0 / 1.1 |
+| Energy-short plots per player per game | at most 2 | 1.7 / 4.0 |
+| First Founder | 85-90% of games | 99.4% / 96.0% |
 
 First Founder depends only on the colony total, so it is set last, through the rating thresholds.
 Prices are measured over the middle third of the rounds (Marcus): late in the game every player covers
