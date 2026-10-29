@@ -43,6 +43,8 @@ public sealed record Report
     /// <summary>Share of the winner's total that came from selling export goods.</summary>
     public required double WinnerExportShare { get; init; }
     public required double[] MeanFinalPrice { get; init; }
+    /// <summary>Average price over the middle third of the rounds.</summary>
+    public double[] MeanMidPrice { get; init; } = new double[Engine.Goods.Count];
     public required double AuctionsSkipped { get; init; }
     public required double StorePlotsSold { get; init; }
     public required double StorePlotsUnsold { get; init; }
@@ -98,6 +100,7 @@ public sealed record Report
                 return w.Total <= 0 ? 0 : (w.Revenue[(int)Good.Crystite] + w.Revenue[(int)Good.Helion]) / (double)w.Total;
             }),
             MeanFinalPrice = Enumerable.Range(0, goods).Select(i => games.Average(g => (double)g.Prices[^1][i])).ToArray(),
+            MeanMidPrice = Enumerable.Range(0, goods).Select(i => games.Average(g => g.Prices.Skip(g.Prices.Length / 3).Take(g.Prices.Length - 2 * (g.Prices.Length / 3)).Average(p => (double)p[i]))).ToArray(),
             AuctionsSkipped = games.Average(g => (double)g.AuctionsSkipped),
             StorePlotsSold = games.Average(g => (double)g.StorePlotsSold),
             StorePlotsUnsold = games.Average(g => (double)g.StorePlotsUnsold),
@@ -149,6 +152,7 @@ public sealed record Report
         w.WriteLine($"  store out of drones {RoundsStoreOutOfDrones:0.0} rounds; starving turns {StarvingTurns:0.0}; energy-short plots {ShortageStops:0.0}; auctions skipped {AuctionsSkipped:0.0}");
         w.WriteLine($"  Glimmer: hunts {GlimmerHunts:0.0} a game, caught {Pct(GlimmerCatchRate)} of hunts");
         w.WriteLine($"  final prices: {string.Join("  ", Engine.Goods.All.Select(g => $"{g} {MeanFinalPrice[(int)g]:0}"))}");
+        w.WriteLine($"  middle-third prices: {string.Join("  ", Engine.Goods.All.Select(g => $"{g} {MeanMidPrice[(int)g]:0}"))}");
         if (Species.Count > 1)
         {
             w.WriteLine("  species      played   win rate (95% CI)      avg rank   avg total");

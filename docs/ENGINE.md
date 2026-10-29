@@ -188,11 +188,14 @@ rounds. Each target holds at every length.
 | Lead changes | at least 3.5 | 3.4 / 4.1 / 3.7 |
 | Final margin (winner over second) | 10-15% | 14% / 16% / 22% |
 | Winner's wealth from exports | 30-55% | 31% / 55% / 50% |
-| Last-round food price | 60-100 | 198 / 40 / 77 |
-| Last-round energy price | 40-70 | 29 / 26 / 29 |
+| Middle-third food price | 60-100 | 66 / 75 / 66 |
+| Middle-third energy price | 40-70 | 37 / 47 / 40 |
 | Starving turns per game | at most 1.5 | 1.0 / 0.9 / 1.5 |
 | Energy-short plots per player per game | at most 2 | 2.2 / 5.8 / 8.1 |
 | First Founder | 85-90% of games | 99.5% / 97.1% / 96.7% |
 
 First Founder depends only on the colony total, so it is set last, through the rating thresholds.
+Prices are measured over the middle third of the rounds (Marcus): late in the game every player covers
+their own food and energy, so those prices fall to their floors whatever the rules, and only rise
+when players fail to feed or power themselves.
 Marcus wants players to compete with each other, which sometimes means holding the others down.
