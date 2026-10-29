@@ -211,6 +211,12 @@ public sealed class CpuSeat : ISeat
             if (Production.Base(game.Settings, plot, job) == null) continue;
             double value = Expected(game, me, plot, job) * UnitValue(game, me, job) - EnergyCost(game, me, job);
             double current = plot.Drone is { } d ? Expected(game, me, plot, d) * UnitValue(game, me, d) - EnergyCost(game, me, d) : 0;
+            if (game.LastRound && c.DumpSeats.Contains(me.Seat))
+            {
+                // Test player: no month after this, so food and energy plots are worth nothing to it.
+                if (job is Good.Food or Good.Energy) continue;
+                if (plot.Drone is Good.Food or Good.Energy) current = 0;
+            }
             // Switching a drone to mining costs part of this round's output, spread over the rounds left.
             if (plot.Drone != null && job.IsMined())
                 value -= value * (1 - 1.0 / game.Settings.Production.MiningSwitchDivisor) / Math.Max(1, game.Rounds - game.Round + 1);

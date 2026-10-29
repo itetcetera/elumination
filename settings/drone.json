@@ -193,6 +193,7 @@
   },
   "scoring": {
     "plotValue": 1000,
+    "finalRepricing": true,
     "colonyStep": 40000,
     "colonyMinimum": 20000,
     "maxRating": 6,
@@ -229,6 +230,7 @@
     "coverFood": false,
     "coverEnergy": true,
     "coverSlack": 0,
+    "dumpSeats": [],
     "coverEnergyChance": 0.25,
     "landReserve": 400,
     "landOverreachChance": 0.2,

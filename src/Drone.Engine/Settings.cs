@@ -454,6 +454,9 @@ public sealed class ScoringSettings
     public required int MaxRating { get; init; }
     public required int FounderRating { get; init; }
     public required string[] Verdicts { get; init; }
+    /// <summary>After the last auctions, food, energy and ore are repriced once more for a month that
+    /// never comes: the colony's need against the colony's stock (Marcus, 2026-10-29).</summary>
+    public bool FinalRepricing { get; init; }
 }
 
 /// <summary>A species' ability and its cost, all in whole amounts (Marcus, 2026-10-28).</summary>
@@ -506,6 +509,8 @@ public sealed class CpuSettings
     public bool CoverFood { get; init; }
     public bool CoverEnergy { get; init; }
     public int CoverSlack { get; init; }
+    /// <summary>Test only: these seats move food and energy drones to other jobs in the last round.</summary>
+    public int[] DumpSeats { get; init; } = [];
     /// <summary>Chance, each turn, that a CPU with CoverEnergy minds its energy that turn.</summary>
     public double CoverEnergyChance { get; init; } = 1;
     /// <summary>Land: cash a CPU keeps after buying: a drone and outfit for the plot + Reserve +

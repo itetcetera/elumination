@@ -176,6 +176,7 @@ public sealed class Game
                 foreach (var w in GoodsAuction.Run(this, good)) yield return Pass(w);
             }
             Prices.BuildDrones(this);
+            if (LastRound && Settings.Scoring.FinalRepricing) Prices.ForMonthAfterLast(this);
             Scoring.Run(this);
         }
         Scoring.End(this);

@@ -177,6 +177,13 @@ At the x2 scale:
   the missing energy adds to demand when the energy price is set; once it holds the reserve, the
   price drops $4 a round down to the floor (store.energyReserveDrones, store.energyPriceDrop; off
   in the original variant). Marcus chose this over a store power plant.
+- No end-of-game math (Marcus, 2026-10-29): the last month prices and trades as if another month
+  followed. After the last auctions, food, energy and ore are repriced once more for that month
+  from the colony's need against the colony's stock (players' goods after spoilage plus the
+  store's, no production), so keeping the colony supplied is worth its real price at the end
+  (scoring.finalRepricing; off in the original variant). A test CPU that moves food and energy
+  drones to other jobs in the last month (cpu.dumpSeats) gains nothing: food and energy plots
+  rarely sit on deposits, and a switch to mining makes half that month.
 
 All-Settler CPU games, 1,000 each: exports take 36% / 54% / 53% of the winner's wealth at 12 / 18 /
 24 rounds; the half-time leader wins 47% at every length; lead changes 3.8 / 4.3 / 4.1.

@@ -57,6 +57,32 @@ public static class Prices
         }
     }
 
+    /// <summary>The month after the last: food, energy and ore repriced from the colony's need against
+    /// the colony's stock (players' goods after spoilage plus the store's), with no production.</summary>
+    public static void ForMonthAfterLast(Game game)
+    {
+        var s = game.Settings.Goods;
+        var store = game.Store;
+        int next = game.Round + 1;
+        int Kept(Good g) => game.Players.Sum(p => p.Held[(int)g] - (int)(p.Held[(int)g] * s.Of(g).Spoilage)) + store.Stock[(int)g];
+
+        int foodNeed = (int)Math.Round(game.Players.Sum(p => game.FoodNeed(p, next)) * s.FoodDemandPerNeed);
+        store.Price[(int)Good.Food] = SupplyDemand(s, s.Food, store.Price[(int)Good.Food], foodNeed, Kept(Good.Food), null);
+
+        var st = game.Settings.Store;
+        int reserve = (int)Math.Ceiling(st.EnergyReserveDrones * game.Settings.Production.EnergyPerDrone);
+        int energyNeed = game.Players.Sum(p => game.EnergyNeed(p)) + reserve;
+        store.Price[(int)Good.Energy] = SupplyDemand(s, s.Energy, store.Price[(int)Good.Energy], energyNeed, Kept(Good.Energy), null);
+
+        double scale = game.PlotScale;
+        int ore = store.Stock[(int)Good.Ore] + game.Players.Sum(p => p.Held[(int)Good.Ore]);
+        int oreSupply = ore / game.Settings.Store.OrePerDrone + store.Drones;
+        int free = game.Map.FreePlots.Count();
+        int empty = game.Map.Plots.Count(p => p.Owner >= 0 && p.Drone == null);
+        int oreDemand = (int)Math.Min(Math.Min(free, s.OreDemandFreePlots * scale) + empty, s.OreDemandCap * scale);
+        store.Price[(int)Good.Ore] = Math.Clamp(SupplyDemand(s, s.Ore, store.Price[(int)Good.Ore], oreDemand, oreSupply, (s.OreRatioMin, s.OreRatioMax)), s.OreFloorAfterSwing, s.Ore.MaxPrice);
+    }
+
     /// <summary>The original's supply-and-demand step: ratio r = 8 x demand / supply (capped, not
     /// wrapped: L3), T = P x r / 16, new price = P/4 + T + T/2, then the good's cap and minimum.</summary>
     public static int SupplyDemand(GoodsSettings s, GoodSettings g, int price, int demand, int supply, (int min, int max)? clamp)
