@@ -64,9 +64,9 @@ async function call(method, ...args) {
 }
 function cleanError(e) { return String(e.message || e).replace(/^.*HubException: /, "").replace(/^An unexpected error.*$/, "Something went wrong."); }
 function flash(text) {
-  const where = !$("game").classList.contains("hidden") ? $("banner") : !$("lobby").classList.contains("hidden") ? $("lobbyError") : $("joinError");
+  const where = !$("game").classList.contains("hidden") ? $("flash") : !$("lobby").classList.contains("hidden") ? $("lobbyError") : $("joinError");
   const span = el("span", { class: "error" }, " " + text);
-  if (where === $("banner")) { where.append(span); setTimeout(() => span.remove(), 3000); }
+  if (where === $("flash")) { where.append(span); setTimeout(() => span.remove(), 3000); }
   else where.textContent = text;
 }
 
@@ -155,12 +155,15 @@ function showGame() {
     : ph.kind === "turn" ? `turn${state.round}-${ph.seat}` : `draft${state.round}`;
   if (key !== phaseKey) {
     if (held) release();
+    if (phaseKey !== null) announce(ph);
     phaseKey = key;
     draftPicks = [];
     turnMode = "walk";
     buildControls(ph);
   }
   drawBanner(ph);
+  drawSteps(ph);
+  drawNow(ph);
   drawMap(ph);
   updateControls(ph);
   drawPlayers();
@@ -169,6 +172,9 @@ function showGame() {
 
 function drawBanner(ph) {
   const b = $("banner");
+  if (ph?.kind === "turn" && ph.seat === mySeat() && ph.message) { b.replaceChildren(el("span", { class: "msg" }, ph.message)); return; }
+  b.replaceChildren();
+  return;
   const round = `Round ${state.round} of ${state.rounds}`;
   let text = state.over ? "The game is over" : "";
   if (!state.over && ph) {
@@ -178,6 +184,116 @@ function drawBanner(ph) {
     if (ph.kind === "goods") text = `${cap(ph.good)} auction`;
   }
   b.replaceChildren(el("b", {}, round), " · ", text, ...(ph?.kind === "turn" && ph.message ? [el("span", { class: "msg" }, ph.message)] : []));
+}
+
+// ---------------------------------------------------------------- where we are, what to do
+
+const STEPS = [["draft", "Land draft"], ["land", "Land auctions"], ["turn", "Turns"], ...GOODS.map(g => ["goods-" + g, cap(g)])];
+const stepOf = ph => !ph ? null : ph.kind === "goods" ? "goods-" + ph.good : ph.kind;
+let lastStep = null;
+
+function drawSteps(ph) {
+  const cur = stepOf(ph) ?? lastStep;
+  if (stepOf(ph)) lastStep = stepOf(ph);
+  const at = STEPS.findIndex(([k]) => k === cur);
+  $("steps").replaceChildren(el("li", { class: "on" }, `Round ${state.round}/${state.rounds}`),
+    ...STEPS.filter(([k]) => k !== "goods-helion" || state.store.price[4] > 0)
+      .map(([k, label]) => el("li", { class: k === cur && ph ? "on" : STEPS.findIndex(s => s[0] === k) < at ? "done" : "" }, label)));
+}
+
+const goodsSideWindow = ph => ph.pos.every(v => v === 0);
+
+// The phase's name, and in plain words what this player should do right now.
+function guide(ph) {
+  const seat = mySeat(), meP = state.players[seat];
+  if (state.over) return { title: "Game over", text: "The final count is in the table on the right." };
+  if (!ph) return { title: "The colony is at work", text: "Production, colony news and scores happen now. Nothing to do: the next phase starts on its own." };
+  if (ph.kind === "draft") {
+    const n = state.players.length;
+    return ph.submitted[seat]
+      ? { title: "Land draft: list handed in", text: "Waiting for the others. Everyone gets one free plot.", bar: secs(ph.endsAt - state.tick) / 20 }
+      : { title: "Land draft: pick your free plot", act: true, bar: secs(ph.endsAt - state.tick) / 20,
+          text: [`Click up to ${n} empty plots on the map, the one you want most first.`, "Press \"Hand in my list\" below.",
+            `Last place picks first; you get your highest pick nobody took before you. ${secs(ph.endsAt - state.tick)}s left.`] };
+  }
+  if (ph.kind === "land") {
+    const lp = map.plots[ph.plot], plot = `a ${lp.terrain}${lp.oreUnits ? ` with ${lp.oreUnits} ore` : ""} plot (yellow outline on the map)`;
+    if (ph.sealed) return { title: `Land auction: ${plot}`, act: ph.seller !== seat, bar: ph.timer,
+      text: ph.seller === seat ? "You're selling it. Wait for the sealed bids." : `Type a bid and press Bid, or do nothing to pass. Highest bid wins and pays the second-highest bid. You have ${meP.cash}.` };
+    if (ph.seller === seat) return { title: `You're selling ${plot}`, act: true, bar: ph.timer,
+      text: "Hold Down (or ↓) to lower your asking price until someone bids. When the clock runs out the highest bidder buys it." };
+    return { title: `Land auction: ${plot}`, act: true, bar: ph.timer,
+      text: [`For sale by ${nameOf(ph.seller)}, starting at ${ph.startPrice}. You have ${meP.cash}.`,
+        "To bid: hold Up (or ↑). Your bar climbs; once it passes the start line you are bidding. Let go to stop.",
+        "Not interested? Do nothing. When the clock runs out the highest bid wins."] };
+  }
+  if (ph.kind === "turn") {
+    if (ph.seat !== seat) return { title: `${nameOf(ph.seat)}'s turn`, bar: ph.timeLeft / ph.seconds,
+      text: "Watch them work. Each player takes a turn in order; you'll be told when it's yours." };
+    return { title: `Your turn: ${Math.ceil(ph.timeLeft)}s`, act: true, bar: ph.timeLeft / ph.seconds, text: turnGuide(ph) };
+  }
+  if (ph.kind === "goods") {
+    const g = GOODS.indexOf(ph.good), have = meP.held[g], need = ph.line[seat], side = ph.sides[seat];
+    const needText = need ? ` You need ${need} for next round.` : "";
+    if (goodsSideWindow(ph)) return { title: `${cap(ph.good)} auction: buy or sell?`, act: true,
+      text: `You have ${have} ${ph.good}.${needText} Press Buy or Sell now. It starts in a moment.` };
+    const tail = "Units trade when a buyer's price meets a seller's. When the clock runs out the auction ends.";
+    if (side === "buy") return { title: `${cap(ph.good)} auction: you're buying`, act: true, bar: ph.timer,
+      text: [`You have ${have}.${needText}`, `Hold Up (or ↑) to raise what you'll pay.${ph.storeSells ? ` The store sells at ${ph.top}.` : ""} Don't want any? Do nothing.`, tail] };
+    return { title: `${cap(ph.good)} auction: you're selling`, act: true, bar: ph.timer,
+      text: [`You have ${have}.${needText}${need ? " You stop selling at that line unless you tick the box below." : ""}`,
+        `Hold Down (or ↓) to lower your asking price. The store always buys at ${ph.bottom}.`, tail] };
+  }
+  return { title: "", text: "" };
+}
+
+// Your turn as a short checklist: get a drone, give it a job, put it on your land.
+function turnGuide(ph) {
+  const seat = mySeat();
+  const mine = map.plots.filter(p => p.owner === seat);
+  const empty = mine.filter(p => !p.drone);
+  const here = map.plots[ph.location];
+  const steps = [
+    ["Walk into town: click the STORE.", ph.inTown || ph.leading],
+    ["Buy a drone.", ph.leading],
+    ["Outfit it: food, energy, ore...", ph.leading && ph.leadJob],
+    [`Walk to one of your empty plots (your color outline${empty.length ? "" : "; you have none free"}).`, ph.leading && ph.leadJob && !ph.inTown && here?.owner === seat],
+    ["Press \"Install\".", false],
+  ];
+  if (!ph.leading && empty.length === 0 && mine.length) steps.splice(0, steps.length, ["All your plots have drones. Assay a plot, chase the Glimmer ✦, or go to the pub for cash.", false]);
+  let cur = steps.findIndex(([, done]) => !done);
+  return el("div", {}, el("ol", {}, steps.map(([t, done], i) => el("li", { class: done ? "doneStep" : i === cur ? "curStep" : "" }, t))),
+    el("div", { class: "hint" }, "Done early? \"Go to the pub\" ends your turn and pays you for the time left."));
+}
+
+let guideKey = "";
+function drawNow(ph) {
+  const g = guide(ph);
+  $("now").classList.toggle("act", !!g.act);
+  $("nowTitle").textContent = g.title;
+  const key = g.text instanceof Node ? g.text.textContent : [].concat(g.text).join("|");
+  if (key !== guideKey) {
+    guideKey = key;
+    $("nowText").replaceChildren(g.text instanceof Node ? g.text : Array.isArray(g.text) ? el("ul", {}, g.text.map(t => el("li", {}, t))) : g.text);
+  }
+  $("nowBar").style.width = `${Math.round(Math.max(0, Math.min(1, g.bar ?? 0)) * 100)}%`;
+}
+
+let announceTimer = null;
+function announce(ph) {
+  if (!ph || state.over) return;
+  const seat = mySeat();
+  const big = ph.kind === "draft" ? "Land draft" : ph.kind === "land" ? "Land auction" : ph.kind === "goods" ? `${cap(ph.good)} auction`
+    : ph.seat === seat ? "Your turn!" : `${nameOf(ph.seat)}'s turn`;
+  const small = ph.kind === "draft" ? "Pick the plots you want" : ph.kind === "land" ? `Plot ${ph.plot} is for sale` : ph.kind === "goods" ? "Choose: buy or sell"
+    : ph.seat === seat ? "Get a drone and put it to work" : "Watch them play";
+  if (ph.kind === "land" && lastStep === "land") return; // one card per run of land auctions
+  if (ph.kind === "turn" && ph.seat !== seat && lastStep === "turn") return;
+  const a = $("announce");
+  a.replaceChildren(el("b", {}, big), el("span", {}, small));
+  a.classList.remove("hidden");
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => a.classList.add("hidden"), 2200);
 }
 
 // Flat-top hexes, odd columns half a hex down.
@@ -281,6 +397,7 @@ function turn(type, extra = {}) { call("Turn", { type, ...extra }).catch(() => {
 function buildControls(ph) {
   const c = $("controls");
   c.replaceChildren();
+  $("scaleArea").replaceChildren(...(ph && (ph.kind === "land" || ph.kind === "goods") ? [el("div", { id: "scaleBox" })] : []));
   if (!ph) return;
   const seat = mySeat();
   if (ph.kind === "draft") {
@@ -300,7 +417,6 @@ function buildControls(ph) {
       c.append(holdButtons(d => call("LandMove", d).catch(() => { }),
         ph.seller === seat ? "You are selling: hold down to lower your asking price." : "Hold up to bid more, down to back off. Arrow keys work too."));
     }
-    c.append(el("div", { id: "scaleBox" }));
   }
   if (ph.kind === "turn" && ph.seat === seat) {
     const mode = (m, label) => el("button", { class: turnMode === m ? "on" : "", onclick: () => { turnMode = turnMode === m ? "walk" : m; buildControls(ph); } }, label);
@@ -310,7 +426,7 @@ function buildControls(ph) {
         GOODS.map(g => el("button", { onclick: () => turn("outfit", { good: g }) }, `Outfit ${g}`)),
         el("button", { onclick: () => turn("sellDrone") }, "Sell drone back")),
       el("div", { class: "group" }, el("span", { class: "label" }, "Field"),
-        el("button", { onclick: () => turn("press") }, "Install / swap / pick up"),
+        el("button", { onclick: () => turn("press") }, "Install"),
         el("button", { onclick: () => turn("release") }, "Let drone go"),
         el("button", { onclick: () => turn("catchGlimmer") }, "Catch Glimmer"),
         el("button", { onclick: () => turn("catchCrate") }, "Grab crate")),
@@ -330,8 +446,7 @@ function buildControls(ph) {
         el("span", { class: "hint" }, "Pick a side in the first moments.")),
       holdButtons(d => call("GoodsMove", d, belowNeed).catch(() => { }), "Buyers hold up to raise their price, sellers hold down to lower theirs."),
       ...(ph.good === "food" || ph.good === "energy" ? [el("label", { class: "group" }, el("input", { type: "checkbox", onchange: e => { belowNeed = e.target.checked; if (held) call("GoodsMove", held, belowNeed).catch(() => { }); } }),
-          " Sell below what I need next round (you may go short)")] : []),
-      el("div", { id: "scaleBox" }));
+          " Sell below what I need next round (you may go short)")] : []));
   }
 }
 
@@ -378,7 +493,7 @@ function updateControls(ph) {
 
 // A price scale drawn upright: each player's line, plus the auction's own marks.
 function scale(lo, hi, marks, players, footer) {
-  const W = 600, H = 240, top = 30, bottom = H - 26;
+  const W = 600, H = 210, top = 30, bottom = H - 26;
   const y = v => bottom - (v - lo) / Math.max(1, hi - lo) * (bottom - top);
   const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, class: "scale" });
   for (const m of marks) {

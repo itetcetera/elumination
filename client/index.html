@@ -41,11 +41,14 @@
 
   <section id="game" class="screen hidden">
     <div class="left">
-      <div id="banner"></div>
+      <ol id="steps"></ol>
+      <div id="now"><div id="nowTitle"></div><div id="nowText"></div><div class="bar"><div id="nowBar"></div></div></div>
+      <div id="scaleArea"></div>
+      <div id="banner"></div><div id="flash"></div>
       <svg id="map"></svg>
-      <div id="controls"></div>
     </div>
     <div class="right">
+      <div id="controls"></div>
       <table id="players"></table>
       <table id="store"></table>
       <h3>What happened</h3>
@@ -53,6 +56,7 @@
     </div>
   </section>
 
+  <div id="announce" class="hidden"></div>
   <script src="/vendor/signalr.min.js"></script>
   <script src="/app.js"></script>
 </body>
