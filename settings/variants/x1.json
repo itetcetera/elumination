@@ -1,0 +1,19 @@
+// x1: today's DRONE at the original M.U.L.E. scale (half of every amount of goods and money in
+// drone.json, auctions at the original unit pace). Marcus made x2 the default on 2026-10-28; this
+// keeps the old scale for comparisons.
+{
+  "game": {"foodNeedByThird": [3, 4, 5], "foodNeedEveryRounds": 0},
+  "map": {"seedLevel": 3, "seedDropPerHex": 1, "seedRadius": 99},
+  "start": {"cash": 1000, "cpuCash": 1200, "food": 4, "energy": 2},
+  "store": {"food": 8, "energy": 8, "ore": 8, "orePerDrone": 2, "dronePriceMultiplier": 10, "startDronePrice": 100},
+  "goods": {"food": {"outfitCost": 25, "maxHeld": 255}, "energy": {"outfitCost": 50, "maxHeld": 255}, "ore": {"outfitCost": 75, "holdCap": 25, "maxHeld": 255}, "crystite": {"outfitCost": 100, "holdCap": 25, "maxHeld": 255}, "helion": {"outfitCost": 100, "holdCap": 25, "maxHeld": 255}, "energyDemandExtra": 4},
+  "land": {"storeStartPrice": 160, "soldDrop": 60, "unsoldDrop": 8, "minPrice": 52, "bidStepThresholds": [0, 400, 800], "bidSteps": [4, 8, 16], "bottomBelowStart": 20, "sellerStep": 16},
+  "turn": {"pubPerSecondLeft": 4.28, "pubRoundBonus": [50, 100, 150, 200], "pubCap": 255, "pubCapTo": 250, "glimmerReward": [100, 200, 300, 400], "crateCash": [50, 100, 150, 200], "crateGoods": [2, 3, 4, 5]},
+  "production": {"plain": [2, 3, 1], "mountain": [1, 1, 0], "mountainOreBase": 1, "orePerUnit": 1, "water": [4, 2, 0], "bankFoodBonus": 1, "scaleBonus": 1, "learningBonus": 1, "farmNeighboursPerBonus": 1, "luckSpread": 1.0, "maxOutput": 10, "energyPerDrone": 1.0},
+  "personalEvents": {"unit": 25, "careFood": 3, "careEnergy": 2, "oreGift": 2},
+  "roundEvents": {"acidFoodIn": 4, "acidEnergyIn": -2, "acidFoodOut": 1, "acidEnergyOut": -1, "sunspotEnergy": 3, "meteorLevel": 4, "meteorMaxBefore": 2, "supplyShipFood": 8, "supplyShipEnergy": 8},
+  "auction": {"energyLineExtra": 1, "firstUnitSeconds": 0.2, "minUnitSeconds": 0.0333, "unitSpeedUp": 0.0167},
+  "scoring": {"plotValue": 500, "colonyStep": 20000, "colonyMinimum": 10000, "colonySteps": [{"rounds": 12, "step": 24000}, {"rounds": 18, "step": 22750}]},
+  "species": {"sprinter": {"extraFoodNeed": 1}, "broker": {"cashDelta": -200}, "prospector": {"foodLoss": 1, "foodLossFrom": 3}, "engineer": {"freeEnergy": 1, "droneSurcharge": 40}},
+  "cpu": {"sellToCash": 1000, "minJobGain": 2, "draftDistanceCost": 5, "landReserve": 200, "landReserveRandom": 256, "goodsReserveExtra": 75}
+}
